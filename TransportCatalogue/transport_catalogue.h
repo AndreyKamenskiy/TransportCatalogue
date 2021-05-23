@@ -1,20 +1,16 @@
 #pragma once
 
-//#include <cstdint>
 #include <string_view>
 #include <string>
-//#include <deque>
 #include <list>
 #include <unordered_map>
 #include <vector>
 
 #include "geo.h"
 
-//#define ID_TYPE uint16_t
 
 //Структура, описывающая остановку
 struct Stop {
-	//ID_TYPE id;
 	std::string_view name;
 	Coordinates coordinates;
 };
@@ -27,7 +23,6 @@ enum class RouteType {
 
 //Структура, описывающая маршрут
 struct Route {
-	//ID_TYPE id;
 	std::string_view name;
 	RouteType type;
 	std::vector<const Stop*> stops;
