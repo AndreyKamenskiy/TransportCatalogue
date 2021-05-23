@@ -26,12 +26,17 @@ void TransportCatalogue::addRoute(std::string& name, RouteType type, std::vector
 			using namespace std::string_literals;
 			throw std::invalid_argument("there is no such stop in the database: "s + stop);
 		}
+
 		stops.push_back(stopPtr);
 	}
 
 	std::string_view nameSV = addString(name);
 	routes_.push_back({ nameSV, type, stops });
-	nameToRoute_[nameSV] = &routes_.back();
+	auto* newRoute = &routes_.back();
+	for (const Stop* stop : stops) {
+		stopToRoutes_[stop].push_back(newRoute);
+	}
+	nameToRoute_[nameSV] = newRoute;
 }
 
 
@@ -41,4 +46,19 @@ const Route* TransportCatalogue::findRoute(std::string_view name) {
 		return nullptr; // возможно лучше заменить на исключение.
 	}
 	return nameToRoute_.at(name);
+}
+
+const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) {
+	if (!route) {
+		using namespace std::string_literals;
+		throw std::invalid_argument("invalid route pointer"s);
+	}
+	int unique = 0;
+	double length;
+
+	return { route->stops.size(), unique, length };
+}
+
+const RouteInfo TransportCatalogue::getRouteInfo(const std::string_view routeName) {
+	return	getRouteInfo(findRoute(routeName));
 }
