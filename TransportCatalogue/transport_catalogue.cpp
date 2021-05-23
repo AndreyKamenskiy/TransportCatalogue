@@ -29,7 +29,6 @@ void TransportCatalogue::addRoute(std::string& name, RouteType type, std::vector
 
 		stops.push_back(stopPtr);
 	}
-
 	std::string_view nameSV = addString(name);
 	routes_.push_back({ nameSV, type, stops });
 	auto* newRoute = &routes_.back();
@@ -54,9 +53,19 @@ const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) {
 		throw std::invalid_argument("invalid route pointer"s);
 	}
 	int unique = 0;
-	double length;
-
-	return { route->stops.size(), unique, length };
+	//get Length and uniques of the route;
+	double length = 0;
+	const Stop* previous = route->type == RouteType::CIRCLE ? route->stops.back() : nullptr;
+	for (const Stop* current : route->stops) {
+		if (stopToRoutes_.at(current).size() == 1) {
+			++unique;
+		}
+		if (previous) {
+			length += ComputeDistance(previous->coordinates, current->coordinates);
+		}
+		previous = current;
+	}
+	return { static_cast<int>(route->stops.size()), unique, length };
 }
 
 const RouteInfo TransportCatalogue::getRouteInfo(const std::string_view routeName) {
