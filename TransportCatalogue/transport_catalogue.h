@@ -46,9 +46,11 @@ public:
 
 	// добавление маршрута в базу
 	void addRoute(std::string& name, RouteType type, std::vector<std::string>& stops);
+	//TODO: add name as string_view 
 
 	//добавление остановки в базу
 	void addStop(std::string& name, Coordinates coordinates);
+	//TODO: addStop(Stop stop)
 
 	//поиск маршрута по имени
 	const Route* findRoute(std::string_view name);
