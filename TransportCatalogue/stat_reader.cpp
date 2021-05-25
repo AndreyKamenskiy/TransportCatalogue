@@ -9,6 +9,11 @@ void printRouteInfo(std::ostream& output, std::string_view name, const RouteInfo
         << " unique stops, "s << std::setprecision(6) << info.length << " route length\n"s;
 }
 
+void printNoRouteFound(std::ostream& output, std::string_view name) {
+    using namespace std::string_literals;
+    output << "Bus "s << name << ": not found\n"s;
+}
+
 void printQueries(std::istream& input, std::ostream& output, TransportCatalogue& tc) {
     std::string queryCountStr;
     std::getline(input, queryCountStr);
@@ -23,9 +28,14 @@ void printQueries(std::istream& input, std::ostream& output, TransportCatalogue&
         if (string_view( &line[0], 4 ) != "Bus "sv) {
             throw invalid_argument("not 'Bus X' query: "s + line);
         }
-        string_view routeName(&line[0], line.size() - 4);
-        RouteInfo info = tc.getRouteInfo(routeName);
-        printRouteInfo(output, routeName, info);
+        string_view routeName(&line[4], line.size() - 4);
+        try {
+            RouteInfo info = tc.getRouteInfo(routeName);
+            printRouteInfo(output, routeName, info);
+        }
+        catch (invalid_argument) {
+            printNoRouteFound(output, routeName);
+        }
     }
     output.flush();
 }
