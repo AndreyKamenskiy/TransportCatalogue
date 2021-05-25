@@ -127,11 +127,9 @@ void IRTest2() {
 	}
 }
 
-
 void testInputReader() {
 	IRTest1();
 	IRTest2();
-
 }
 
 
