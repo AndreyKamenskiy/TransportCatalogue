@@ -32,10 +32,10 @@ void TCTest1() {
 		tc.addRoute(busName2, stops);
 		assert(false);
 	}
-	catch (std::invalid_argument) {
+	catch (std::invalid_argument&) {
 		//std::cout << e.what() << std::endl;
 	}
-	catch (std::exception) {
+	catch (std::exception&) {
 		assert(false);
 	}
 
@@ -104,10 +104,10 @@ void IRTest1() {
 		addToCatalogue(ss, tc);
 		assert(false);
 	}
-	catch (std::invalid_argument) {
+	catch (std::invalid_argument&) {
 		
 	}
-	catch (std::exception) {
+	catch (std::exception&) {
 		assert(false);
 	}
 }
@@ -140,10 +140,10 @@ void IRTest2() {
 		routeInfo = tc.getRouteInfo("noSuchRoute"s);
 		assert(false);
 	}
-	catch (std::invalid_argument) {
+	catch (std::invalid_argument&) {
 	
 	}
-	catch (std::exception) {
+	catch (std::exception&) {
 		assert(false);
 	}
 }

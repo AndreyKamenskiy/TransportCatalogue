@@ -33,7 +33,7 @@ void printQueries(std::istream& input, std::ostream& output, TransportCatalogue&
             RouteInfo info = tc.getRouteInfo(routeName);
             printRouteInfo(output, routeName, info);
         }
-        catch (invalid_argument) {
+        catch (invalid_argument&) {
             printNoRouteFound(output, routeName);
         }
     }
