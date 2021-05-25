@@ -15,16 +15,9 @@ struct Stop {
 	Coordinates coordinates;
 };
 
-//Типы маршрутов 
-enum class RouteType {
-	LINEAR,
-	CIRCLE
-};
-
 //Структура, описывающая маршрут
 struct Route {
 	std::string_view name;
-	RouteType type;
 	std::vector<const Stop*> stops;
 };
 
@@ -45,8 +38,9 @@ public:
 	}
 
 	// добавление маршрута в базу
-	void addRoute(std::string& name, RouteType type, std::vector<std::string>& stops);
+	void addRoute(std::string& name, std::vector<std::string>& stops);
 	//TODO: add name as string_view 
+	//TODO: add input as AddRouteQuery
 
 	//добавление остановки в базу
 	void addStop(std::string& name, Coordinates coordinates);
@@ -65,9 +59,8 @@ public:
 private:
 	// контейнер для всех имен спарвочника. На них будут ссылаться string_view класса.
 	std::list<std::string> allNames;
-	std::unordered_map<std::string_view, Stop*> nameToStop_;
+	std::unordered_map<std::string_view, Stop*> nameToStop_; // key - name of the stop, value - ptr to Stop
 	std::unordered_map<std::string_view, Route*> nameToRoute_;
-	std::unordered_map<const Stop*, std::vector<const Route*>> stopToRoutes_;
 
 	//список всех остановок
 	std::list<Stop> stops_;

@@ -20,21 +20,20 @@ void TCTest1() {
 	assert(!stop);
 
 	std::string busName = "bus1";
-	tc.addRoute(busName, RouteType::LINEAR, stops);
+	tc.addRoute(busName, stops);
 	const Route* rt = tc.findRoute("bus1");
-	assert(rt->type == RouteType::LINEAR);
 	assert(rt->stops[0] == tc.findStop(stops[0]));
 
 	try{
 		stops.push_back("stop3"s);
 		std::string busName2 = "bus2"s;
-		tc.addRoute(busName2, RouteType::LINEAR, stops);
+		tc.addRoute(busName2, stops);
 		assert(false);
 	}
-	catch (std::invalid_argument& e) {
-		std::cout << e.what() << std::endl;
+	catch (std::invalid_argument) {
+		//std::cout << e.what() << std::endl;
 	}
-	catch (std::exception& e) {
+	catch (std::exception) {
 		assert(false);
 	}
 
@@ -52,18 +51,18 @@ void TCTest2() {
 	{
 		tc.addStop(stops[i], coord[i]);
 	}
-	tc.addRoute(routeNames[0], RouteType::LINEAR, stops);
+	tc.addRoute(routeNames[0], stops);
 	stops.resize(2);
-	tc.addRoute(routeNames[1], RouteType::CIRCLE, stops);
+	tc.addRoute(routeNames[1], stops);
 	RouteInfo info1 = tc.getRouteInfo(routeNames[0]);
 	assert(info1.stopsNumber == 4);
-	assert(info1.uniqueStops == 2);
+	assert(info1.uniqueStops == 4);
 	double len = ComputeDistance(coord[0], coord[1]) + ComputeDistance(coord[2], coord[1]) + ComputeDistance(coord[2], coord[3]);
 	assert(info1.length == len);
 	RouteInfo info2 = tc.getRouteInfo("route2"s);
 	assert(info2.stopsNumber == 2);
-	assert(info2.uniqueStops == 0);
-	len = ComputeDistance(coord[0], coord[1]) * 2;
+	assert(info2.uniqueStops == 2);
+	len = ComputeDistance(coord[0], coord[1]);
 	assert(info2.length == len);
 }
 
@@ -84,14 +83,12 @@ void IRTest1() {
 		addToCatalogue(ss, tc);
 		assert(false);
 	}
-	catch (std::invalid_argument& e) {
+	catch (std::invalid_argument) {
 		
 	}
-	catch (std::exception& e) {
+	catch (std::exception) {
 		assert(false);
 	}
-
-
 }
 
 void IRTest2() {
@@ -103,27 +100,37 @@ void IRTest2() {
 	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
 	ss << "Bus 750: Tolstopaltsevo - Marushkino - Rasskazovka"s << "\n";
 	ss << "Stop Rasskazovka: 55.632761, 37.333324"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye : 55.574371, 37.651700"s << "\n";
+	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.651700"s << "\n";
 	ss << "Stop Biryusinka: 55.581065, 37.648390"s << "\n";
 	ss << "Stop Universam: 55.587655, 37.645687"s << "\n";
 	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656"s << "\n";
 	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164"s << "\n";
 	TransportCatalogue tc;
 	addToCatalogue(ss, tc);
+	auto routeInfo = tc.getRouteInfo("256"s);
+	assert(routeInfo.stopsNumber == 6);
+	assert(routeInfo.uniqueStops == 5);
+	assert(floor(routeInfo.length) == 4371.);
+	routeInfo = tc.getRouteInfo("750"s);
+	assert(routeInfo.stopsNumber == 5);
+	assert(routeInfo.uniqueStops == 3);
+	assert(floor(routeInfo.length) == 20939.);
+	try {
+		routeInfo = tc.getRouteInfo("noSuchRoute"s);
+		assert(false);
+	}
+	catch (std::invalid_argument) {
+	
+	}
+	catch (std::exception) {
+		assert(false);
+	}
 }
 
 
 void testInputReader() {
 	IRTest1();
 	IRTest2();
-
-
-
-		
-		
-		
-		
-		
 
 }
 
