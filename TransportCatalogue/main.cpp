@@ -181,10 +181,13 @@ void testInputReader() {
 using namespace std;
 
 int main() {
-	testTransportCatalogue();
+	/*testTransportCatalogue();
 	testInputReader();
 
-	cout << "all tests passed successfully"s;
+	cout << "all tests passed successfully"s;*/
+	TransportCatalogue tc;
+	addToCatalogue(cin, tc);
+	printQueries(cin, cout, tc);
 
 	return 0;
 }
