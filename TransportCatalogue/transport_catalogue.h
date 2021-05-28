@@ -33,18 +33,19 @@ class TransportCatalogue {
 
 public:
 
-	TransportCatalogue() {
+	/*TransportCatalogue() {
 		//default constructor
-	}
+	}*/
 
 	// добавление маршрута в базу
-	void addRoute(std::string& name, std::vector<std::string>& stops);
-	//TODO: add name as string_view 
+	//void addRoute(std::string& name, std::vector<std::string>& stops);
+	void addRoute(std::string_view name, std::vector<std::string>& stops);
 	//TODO: add input as AddRouteQuery
 
 	//добавление остановки в базу
-	void addStop(std::string& name, Coordinates coordinates);
-	//TODO: addStop(Stop stop)
+	//void addStop(std::string& name, Coordinates coordinates);
+	void addStop(std::string_view name, Coordinates coordinates);
+
 
 	//поиск маршрута по имени
 	const Route* findRoute(std::string_view name);
@@ -68,8 +69,13 @@ private:
 	//список всех маршрутов
 	std::list<Route> routes_;
 
-	std::string_view addString(std::string& str) {
+	/*std::string_view addString(std::string& str) {
 		allNames.push_back(str);
+		return allNames.back();
+	}*/
+
+	std::string_view addString(std::string_view str) {
+		allNames.push_back(static_cast<std::string>(str));
 		return allNames.back();
 	}
 

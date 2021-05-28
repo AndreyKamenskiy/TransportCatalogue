@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 //добавить остановку в базу
-void TransportCatalogue::addStop(std::string& name, Coordinates coordinates) {
+void TransportCatalogue::addStop(std::string_view name, Coordinates coordinates) {
 	std::string_view nameSV = addString(name);
 	stops_.push_back({nameSV, coordinates});
 	nameToStop_[nameSV] = &stops_.back();
@@ -18,7 +18,7 @@ const Stop* TransportCatalogue::findStop(std::string_view name) {
 }
 
 // добавление маршрута в базу
-void TransportCatalogue::addRoute(std::string& name, std::vector<std::string>& stopNames ) {
+void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string>& stopNames ) {
 	std::vector<const Stop*> stops;
 	stops.reserve(stopNames.size());
 	for (auto& stop : stopNames) {
