@@ -18,14 +18,14 @@ const Stop* TransportCatalogue::findStop(std::string_view name) {
 }
 
 // добавление маршрута в базу
-void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string>& stopNames ) {
+void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string_view>& stopNames ) {
 	std::vector<const Stop*> stops;
 	stops.reserve(stopNames.size());
 	for (auto& stop : stopNames) {
 		const Stop* stopPtr = findStop(stop);
 		if (!stopPtr) {
 			using namespace std::string_literals;
-			throw std::invalid_argument("there is no such stop in the database: '"s + stop + "'"s);
+			throw std::invalid_argument("there is no such stop in the database: '"s + static_cast<std::string>(stop) + "'"s);
 		}
 		stops.push_back(stopPtr);
 	}

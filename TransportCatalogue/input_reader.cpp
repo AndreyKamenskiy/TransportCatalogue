@@ -30,7 +30,7 @@ inputQueryType getQueryType(std::string_view line) {
 }
 
 struct AddStopQuery{
-    std::string name;
+    std::string_view name;
     Coordinates coordinates{0,0};
 };
 
@@ -38,7 +38,7 @@ AddStopQuery parseAddStopQuery(std::string_view line) {
     using namespace std::string_literals;
     AddStopQuery res;
     auto pos = line.find(": "s, 5);
-    res.name = static_cast<std::string>(line.substr(5, pos - 5));
+    res.name = line.substr(5, pos - 5);
     auto latEnd = line.find(", ", pos + 1);
     res.coordinates.lat = std::stod(static_cast<std::string>(line.substr(pos + 1, latEnd - (pos + 1))));
     res.coordinates.lng = std::stod(static_cast<std::string>(line.substr(latEnd + 1)));
@@ -47,15 +47,15 @@ AddStopQuery parseAddStopQuery(std::string_view line) {
 
 struct AddRouteQuery
 {
-    std::string name;
-    std::vector<std::string> stopNames;
+    std::string_view name;
+    std::vector<std::string_view> stopNames;
 };
 
 AddRouteQuery parseAddRouteQuery(std::string_view line) {
     using namespace std::string_literals;
     AddRouteQuery res;
     auto pos = line.find(": "s, 4);
-    res.name = static_cast<std::string>(line.substr(4, pos - 4));
+    res.name = line.substr(4, pos - 4);
     auto stopBegin = pos + 2;
     std::string separator = " > ";
     auto stopEnd = line.find(separator, stopBegin);
@@ -65,7 +65,7 @@ AddRouteQuery parseAddRouteQuery(std::string_view line) {
         stopEnd  = line.find(separator, stopBegin);
     }
     while (true) {
-        res.stopNames.push_back(static_cast<std::string>(line.substr(stopBegin, stopEnd - stopBegin)));
+        res.stopNames.push_back(line.substr(stopBegin, stopEnd - stopBegin));
         if (stopEnd == line.npos) {
             break;
         }
@@ -88,6 +88,7 @@ std::istream& addToCatalogue(std::istream& input, TransportCatalogue& tc) {
     // может вызвать исключение std::invalid_argument и std::out_of_range. Пока никак не обрабатываем, пробрасываем дальше
     int queryCount = std::stoi(queryCountStr); 
     std::vector<AddRouteQuery> queries;
+    std::vector<std::string> routeLines;
 
     for (size_t i = 0; i < queryCount; ++i)
     {
@@ -99,7 +100,8 @@ std::istream& addToCatalogue(std::istream& input, TransportCatalogue& tc) {
             tc.addStop(query.name, query.coordinates);
         }
         else if (type == inputQueryType::ADD_ROUTE) {
-            queries.push_back(parseAddRouteQuery(line));
+            routeLines.push_back(move(line));
+            queries.push_back(parseAddRouteQuery(routeLines.back()));
         }
     }
 

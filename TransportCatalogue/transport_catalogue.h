@@ -34,7 +34,7 @@ class TransportCatalogue {
 public:
 
 	// добавление маршрута в базу
-	void addRoute(std::string_view name, std::vector<std::string>& stops);
+	void addRoute(std::string_view name, std::vector<std::string_view>& stops);
 	//TODO: add input as AddRouteQuery
 
 	//добавление остановки в базу

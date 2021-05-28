@@ -7,9 +7,9 @@
 
 //tests for TransportCatalogue class
 void TCTest1() {
-	using namespace std::string_literals;
+	using namespace std;
 	TransportCatalogue tc;
-	std::vector<std::string> stops{ "stop1"s, "stop2"s };
+	std::vector<std::string_view> stops{ "stop1"sv, "stop2"sv };
 
 	tc.addStop(stops[0], {0.1, 0.2});
 	tc.addStop(stops[1], { 0.2, 0.3});
@@ -44,9 +44,9 @@ void TCTest1() {
 }
 
 void TCTest2() {
-	using namespace std::string_literals;
+	using namespace std;
 	TransportCatalogue tc;
-	std::vector<std::string> stops{ "stop1"s, "stop2"s, "stop3"s, "stop4"s};
+	std::vector<std::string_view> stops{ "stop1"sv, "stop2"sv, "stop3"sv, "stop4"sv};
 	std::vector<Coordinates> coord{ {0.0, 0.0}, {0.0, 1.0}, {0.0, 2.0}, {0.0, 3.0} };
 	std::vector<std::string> routeNames{ "route 1"s, "route2"s};
 	for (size_t i = 0; i < stops.size(); i++)
