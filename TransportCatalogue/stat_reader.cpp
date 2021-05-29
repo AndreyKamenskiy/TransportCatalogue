@@ -11,7 +11,7 @@ enum class outputQueryType {
 };
 
 
-outputQueryType getQueryType(std::string_view line) {
+outputQueryType getStatQueryType(std::string_view line) {
     using namespace std;
     const std::string_view showStopPrefix = "Stop "sv;
     const std::string_view showRoutePrefix = "Bus "sv;
@@ -97,7 +97,7 @@ void printQueries(std::istream& input, std::ostream& output, TransportCatalogue&
         using namespace std;
         std::string line;
         std::getline(input, line);
-        outputQueryType type = getQueryType(line);
+        outputQueryType type = getStatQueryType(line);
 
         if (type == outputQueryType::BUS) {
             manageBusQuery(output, line, tc);

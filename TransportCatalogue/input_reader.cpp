@@ -13,7 +13,7 @@ enum class inputQueryType {
     ADD_ROUTE
 };
 
-inputQueryType getQueryType(std::string_view line) {
+inputQueryType getStatQueryType(std::string_view line) {
     using namespace std;
     const std::string_view addStopPrefix = "Stop "sv;
     const std::string_view addRoutePrefix = "Bus "sv;
@@ -93,7 +93,7 @@ std::istream& addToCatalogue(std::istream& input, TransportCatalogue& tc) {
     {
         std::string line;
         std::getline(input, line);
-        inputQueryType type = getQueryType(line);
+        inputQueryType type = getStatQueryType(line);
         if (type == inputQueryType::ADD_STOP) {
             AddStopQuery query = parseAddStopQuery(line);
             tc.addStop(query.name, query.coordinates);
