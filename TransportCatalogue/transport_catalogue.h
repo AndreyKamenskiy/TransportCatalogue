@@ -51,6 +51,12 @@ public:
 	const RouteInfo getRouteInfo(const Route* route);
 	const RouteInfo getRouteInfo(const std::string_view routeName);
 
+
+	//Поиск маршрутов по остановке 
+	size_t getRoutesNumOnStop(const Stop* stop);
+
+	std::vector<const Route*> getRoutesOnStop(const Stop * stop);
+
 private:
 	// контейнер для всех имен спарвочника. На них будут ссылаться string_view класса.
 	std::list<std::string> allNames;
@@ -62,6 +68,9 @@ private:
 
 	//список всех маршрутов
 	std::list<Route> routes_;
+
+	// словарь. остановка - маршрутыж
+	std::unordered_map<const Stop*, std::unordered_set<Route*>> stopToRoutes_;
 
 	std::string_view addString(std::string_view str) {
 		allNames.push_back(static_cast<std::string>(str));

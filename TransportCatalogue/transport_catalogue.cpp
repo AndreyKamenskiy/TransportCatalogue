@@ -12,7 +12,8 @@ void TransportCatalogue::addStop(std::string_view name, Coordinates coordinates)
 //поиск остановки по имени
 const Stop* TransportCatalogue::findStop(std::string_view name) {
 	if (nameToStop_.count(name) == 0) {
-		return nullptr; // возможно лучше заменить на исключение.
+		using namespace std::string_literals;
+		throw std::invalid_argument("there is no such stop in the database: '"s + static_cast<std::string>(name) + "'"s);
 	}
 	return nameToStop_.at(name);
 }
@@ -32,6 +33,9 @@ void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string
 	std::string_view nameSV = addString(name);
 	routes_.push_back({ nameSV, stops });
 	nameToRoute_[nameSV] = &routes_.back();
+	for (auto stopPtr : stops) {
+		stopToRoutes_[stopPtr].insert(&routes_.back());
+	}
 }
 
 
@@ -64,4 +68,14 @@ const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) {
 
 const RouteInfo TransportCatalogue::getRouteInfo(const std::string_view routeName) {
 	return	getRouteInfo(findRoute(routeName));
+}
+
+
+//Поиск маршрутов по остановке 
+size_t TransportCatalogue::getRoutesNumOnStop(const Stop* stop) {
+	return stopToRoutes_.count(stop);
+}
+
+std::vector<const Route*> TransportCatalogue::getRoutesOnStop(const Stop* stop) {
+	return { stopToRoutes_.at(stop).begin(), stopToRoutes_.at(stop).end() };
 }

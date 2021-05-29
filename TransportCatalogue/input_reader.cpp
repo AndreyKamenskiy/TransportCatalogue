@@ -6,7 +6,6 @@
 #include <vector>
 #include <iostream>
 
-//TODO: Remove all string copyes
 //TODO: add Check for invalid input like no stops on the route
 
 enum class inputQueryType {

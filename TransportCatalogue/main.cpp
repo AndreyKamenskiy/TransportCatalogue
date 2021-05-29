@@ -18,8 +18,16 @@ void TCTest1() {
 	assert(stop->coordinates.lat == 0.1);
 	assert(stop->coordinates.lng == 0.2);
 
-	stop = tc.findStop("no such stop"s);
-	assert(!stop);
+	try {
+		stop = tc.findStop("no such stop"s);
+		assert(false);
+	}
+	catch (invalid_argument&) {
+	
+	}
+	catch (exception&) {
+		assert(false);
+	}
 
 	std::string busName = "bus1";
 	tc.addRoute(busName, stops);
@@ -171,10 +179,56 @@ void IRTest3() {
 
 
 
+void IRTest4() {
+	TransportCatalogue tc = makeSimpleCatalogue();
+	using namespace std::string_literals;
+	std::stringstream ss;
+	ss << 13 << "\n";
+	ss << "Stop Tolstopaltsevo: 55.611087, 37.20829"s << "\n";
+	ss << "Stop Marushkino: 55.595884, 37.209755"s << "\n";
+	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
+	ss << "Bus 750: Tolstopaltsevo - Marushkino - Rasskazovka"s << "\n";
+	ss << "Stop Rasskazovka: 55.632761, 37.333324"s << "\n";
+	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.6517"s << "\n";
+	ss << "Stop Biryusinka: 55.581065, 37.64839"s << "\n";
+	ss << "Stop Universam: 55.587655, 37.645687"s << "\n";
+	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656"s << "\n";
+	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164"s << "\n";
+	ss << "Bus 828: Biryulyovo Zapadnoye > Universam > Rossoshanskaya ulitsa > Biryulyovo Zapadnoye"s << "\n";
+	ss << "Stop Rossoshanskaya ulitsa: 55.595579, 37.605757"s << "\n";
+	ss << "Stop Prazhskaya: 55.611678, 37.603831"s << "\n";
+	ss << 6 << "\n";
+	ss << "Bus 256"s << "\n";
+	ss << "Bus 750"s << "\n";
+	ss << "Bus 751"s << "\n";
+	ss << "Stop Samara"s << "\n";
+	ss << "Stop Prazhskaya"s << "\n";
+	ss << "Stop Biryulyovo Zapadnoye"s << "\n";
+
+	addToCatalogue(ss, tc);
+	std::stringstream so;
+	printQueries(ss, so, tc);
+	const std::vector<std::string> answers = { "Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length"s,
+		"Bus 750: 5 stops on route, 3 unique stops, 20939.5 route length"s,
+		"Bus 751: not found"s,
+		"Stop Samara: not found"s,
+		"Stop Prazhskaya: no buses"s,
+		"Stop Biryulyovo Zapadnoye: buses 256 828"s
+	};
+	for (const std::string& ans : answers) {
+		std::string line;
+		std::getline(so, line);
+		assert(line == ans);
+	}
+}
+
+
+
 void testInputReader() {
 	IRTest1();
 	IRTest2();
 	IRTest3();
+	IRTest4();
 }
 
 
