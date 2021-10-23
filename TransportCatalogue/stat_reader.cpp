@@ -30,7 +30,7 @@ outputQueryType getStatQueryType(std::string_view line) {
 void printRouteInfo(std::ostream& output, std::string_view name, const RouteInfo& info) {
     using namespace std::string_literals;
     output << "Bus "s << name << ": "s << info.stopsNumber << " stops on route, "s << info.uniqueStops
-        << " unique stops, "s << std::setprecision(6) << info.length << " route length\n"s;
+        << " unique stops, "s << info.length << " route length, "s << std::setprecision(6) << info.curvature << " curvature\n"s;
 }
 
 void printNoRouteFound(std::ostream& output, std::string_view name) {
@@ -108,7 +108,7 @@ void printQueries(std::istream& input, std::ostream& output, TransportCatalogue&
             manageStopQuery(output, line, tc);
             continue;
         }
-        throw invalid_argument("not 'Bus X' query: "s + line);
+        throw invalid_argument("uncknown query type: "s + line);
     }
     output.flush();
 }
