@@ -1,8 +1,9 @@
 ﻿#include "transport_catalogue.h"
 #include <stdexcept>
+#include <unordered_set>
 
 //добавить остановку в базу
-void TransportCatalogue::addStop(std::string& name, Coordinates coordinates) {
+void TransportCatalogue::addStop(std::string_view name, Coordinates coordinates) {
 	std::string_view nameSV = addString(name);
 	stops_.push_back({nameSV, coordinates});
 	nameToStop_[nameSV] = &stops_.back();
@@ -11,31 +12,30 @@ void TransportCatalogue::addStop(std::string& name, Coordinates coordinates) {
 //поиск остановки по имени
 const Stop* TransportCatalogue::findStop(std::string_view name) {
 	if (nameToStop_.count(name) == 0) {
-		return nullptr; // возможно лучше заменить на исключение.
+		using namespace std::string_literals;
+		throw std::invalid_argument("there is no such stop in the database: '"s + static_cast<std::string>(name) + "'"s);
 	}
 	return nameToStop_.at(name);
 }
 
 // добавление маршрута в базу
-void TransportCatalogue::addRoute(std::string& name, RouteType type, std::vector<std::string>& stopNames ) {
+void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string_view>& stopNames ) {
 	std::vector<const Stop*> stops;
 	stops.reserve(stopNames.size());
 	for (auto& stop : stopNames) {
 		const Stop* stopPtr = findStop(stop);
 		if (!stopPtr) {
 			using namespace std::string_literals;
-			throw std::invalid_argument("there is no such stop in the database: "s + stop);
+			throw std::invalid_argument("there is no such stop in the database: '"s + static_cast<std::string>(stop) + "'"s);
 		}
-
 		stops.push_back(stopPtr);
 	}
 	std::string_view nameSV = addString(name);
-	routes_.push_back({ nameSV, type, stops });
-	auto* newRoute = &routes_.back();
-	for (const Stop* stop : stops) {
-		stopToRoutes_[stop].push_back(newRoute);
+	routes_.push_back({ nameSV, stops });
+	nameToRoute_[nameSV] = &routes_.back();
+	for (auto stopPtr : stops) {
+		stopToRoutes_[stopPtr].insert(&routes_.back());
 	}
-	nameToRoute_[nameSV] = newRoute;
 }
 
 
@@ -52,22 +52,30 @@ const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) {
 		using namespace std::string_literals;
 		throw std::invalid_argument("invalid route pointer"s);
 	}
-	int unique = 0;
+	std::unordered_set<std::string_view> unique;
 	//get Length and uniques of the route;
 	double length = 0;
-	const Stop* previous = route->type == RouteType::CIRCLE ? route->stops.back() : nullptr;
+	const Stop* previous = nullptr;
 	for (const Stop* current : route->stops) {
-		if (stopToRoutes_.at(current).size() == 1) {
-			++unique;
-		}
+		unique.insert(current->name);
 		if (previous) {
 			length += ComputeDistance(previous->coordinates, current->coordinates);
 		}
 		previous = current;
 	}
-	return { static_cast<int>(route->stops.size()), unique, length };
+	return { static_cast<int>(route->stops.size()), static_cast<int>(unique.size()), length };
 }
 
 const RouteInfo TransportCatalogue::getRouteInfo(const std::string_view routeName) {
 	return	getRouteInfo(findRoute(routeName));
+}
+
+
+//Поиск маршрутов по остановке 
+size_t TransportCatalogue::getRoutesNumOnStop(const Stop* stop) {
+	return stopToRoutes_.count(stop);
+}
+
+std::vector<const Route*> TransportCatalogue::getRoutesOnStop(const Stop* stop) {
+	return { stopToRoutes_.at(stop).begin(), stopToRoutes_.at(stop).end() };
 }
