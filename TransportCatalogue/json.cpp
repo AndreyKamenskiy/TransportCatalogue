@@ -426,92 +426,106 @@ namespace json {
 
     ///////////////////// NodePrinter //////////////////////////////////// 
 
+    NodePrinter::NodePrinter(std::ostream& output, int depth = 1) 
+        : output_(output), depth_(depth)
+    {
+    }
+
     void NodePrinter::operator()(std::nullptr_t)
     {
         using namespace std::literals;
-        output << "null"s;
+        output_ << "null"s;
     }
 
     void NodePrinter::operator()(std::string value)
     {
-        output << "\""s;
+        output_ << "\""s;
         for (char ch : value) {
             if (ch == '"') {
-                output << '\\';
+                output_ << '\\';
             }
             if (ch == '/') {
-                output << '\\';
+                output_ << '\\';
             }
             if (ch == '\\') {
-                output << '\\';
+                output_ << '\\';
             }
             if (ch == '\n') {
-                output << "\\n"s;
+                output_ << "\\n"s;
                 continue;
             }
             if (ch == '\t') {
-                output << "\\t"s;
+                output_ << "\\t"s;
                 continue;
             }
             if (ch == '\r') {
-                output << "\\r"s;
+                output_ << "\\r"s;
                 continue;
             }
 
-            output << ch;
+            output_ << ch;
         }
-        output << '"';
+        output_ << '"';
     }
 
     void NodePrinter::operator()(double value)
     {
-        output << value;
+        output_ << value;
     }
 
     void NodePrinter::operator()(int value)
     {
-        output << value;
+        output_ << value;
     }
 
     void NodePrinter::operator()(bool value)
     {
-        output << (value ? "true"s : "false"s);
+        output_ << (value ? "true"s : "false"s);
     }
 
     void NodePrinter::operator()(Array arr)
     {
-        output << "["s;
+        std::string tabs = "\n";
+        for (size_t i = 0; i < depth_ - 1; i++)
+        {
+            tabs += tabulation_;
+        }
+        output_ << "["s << tabs << tabulation_;
         bool first = true;
-
         for (const Node& node : arr) {
             if (first) {
                 first = false;
             }
             else {
-                output << ", "s;
+                output_ << ","s << tabs << tabulation_;
             }
-            visit(NodePrinter{ output }, node.GetValue());
+            visit(NodePrinter{ output_, depth_ + 1 }, node.GetValue());
         }
 
-        output << ']';
+        output_ << tabs <<']';
     }
 
     void NodePrinter::operator()(Dict map)
     {
-        output << "{ "s;
+        std::string tabs = "\n";
+        for (size_t i = 0; i < depth_ - 1; i++)
+        {
+            tabs += tabulation_;
+        }
+        output_ << "{"s << tabs << tabulation_;
         bool first = true;
         for (auto& [key, node] : map) {
             if (first) {
                 first = false;
             }
             else {
-                output << ", "s;
+                output_ << ","s << tabs<< tabulation_;
             }
-            output << '"' << key << "\": "s;
-            visit(NodePrinter{ output }, node.GetValue());
+            output_ << '"' << key << "\": "s;
+            visit(NodePrinter{ output_, depth_ + 1 }, node.GetValue());
         }
 
-        output << '}';
+        output_ << tabs << '}';
     }
 
     void Print(const Document& doc, std::ostream& output) {

@@ -65,8 +65,9 @@ private:
 
 Document Load(std::istream& input);
 
-struct NodePrinter {
-    std::ostream& output;
+class NodePrinter {
+public:
+    NodePrinter(std::ostream& output, int depth);    
     void operator()(std::nullptr_t);
     void operator()(std::string value);
     void operator()(double value);
@@ -74,6 +75,10 @@ struct NodePrinter {
     void operator()(bool value);
     void operator()(Array arr);
     void operator()(Dict map);
+private:
+    const std::string tabulation_ = "\t";
+    std::ostream& output_;
+    int depth_;
 };
 
 void Print(const Document& doc, std::ostream& output);
