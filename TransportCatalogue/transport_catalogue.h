@@ -58,6 +58,9 @@ public:
 	//если рассто€ние не известно возвращает -1. ;
 	//если рассто€ние от ј до ј не задано, возвращает 0. ;
 	double getRealStopsDistance(const Stop* stopA, const Stop* stopB) const;
+		
+	// на данный момент все имеющиес€ пол€ могут сами себ€ удалить
+	~TransportCatalogue() = default;
 
 private:
 

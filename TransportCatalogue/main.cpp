@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <locale.h>
 #include "transport_catalogue.h"
 #include "input_reader.h"
 #include "stat_reader.h"
@@ -203,7 +204,7 @@ void testInputReader() {
 
 
 std::string loadFile(std::string filename) {
-	std::ifstream is(filename, std::ios::ate);
+	std::ifstream is(filename, std::ios::binary | std::ios::ate);
 	if (!is.is_open()) {
 		return "";
 	}
@@ -219,8 +220,11 @@ std::string loadFile(std::string filename) {
 
 void test_json_reader1() {
 	std::string simpleTest = loadFile("input_test1.json");
+	std::stringstream strm{simpleTest};
+	json::Document inputJSON = json::Load(strm);
 
-
+	std::stringstream out{ simpleTest };
+	json::Print(inputJSON, std::cout);
 
 }
 
@@ -237,11 +241,10 @@ int main() {
 
 	testTransportCatalogue();
 	testInputReader();
+	setlocale(LC_ALL, "Russian");
 	test_json_reader();
 
 	cout << "all tests passed successfully"s;
-
-
 
 	/*TransportCatalogue tc;
 	addToCatalogue(cin, tc);
