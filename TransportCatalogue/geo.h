@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-//namespace geo {
+namespace geo {
 
 struct Coordinates {
     double lat;
@@ -17,4 +17,4 @@ inline double ComputeDistance(Coordinates from, Coordinates to) {
         * 6371000;
 }
 
-//}
+}

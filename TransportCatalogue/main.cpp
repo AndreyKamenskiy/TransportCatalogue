@@ -1,9 +1,13 @@
-#include "transport_catalogue.h"
-#include "input_reader.h"
-#include "stat_reader.h"
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include "transport_catalogue.h"
+#include "input_reader.h"
+#include "stat_reader.h"
+#include "json_reader.h"
+
+using namespace transport_catalogue;
+using namespace domain;
 
 //tests for TransportCatalogue class
 void TCTest1() {
@@ -120,108 +124,6 @@ void IRTest1() {
 	}
 }
 
-/*void IRTest2() {
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << 10 << "\n";
-	ss << "Stop Tolstopaltsevo: 55.611087, 37.208290"s << "\n";
-	ss << "Stop Marushkino: 55.595884, 37.209755"s << "\n";
-	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
-	ss << "Bus 750: Tolstopaltsevo - Marushkino - Rasskazovka"s << "\n";
-	ss << "Stop Rasskazovka: 55.632761, 37.333324"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.651700"s << "\n";
-	ss << "Stop Biryusinka: 55.581065, 37.648390"s << "\n";
-	ss << "Stop Universam: 55.587655, 37.645687"s << "\n";
-	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656"s << "\n";
-	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164"s << "\n";
-	TransportCatalogue tc;
-	addToCatalogue(ss, tc);
-	auto routeInfo = tc.getRouteInfo("256"s);
-	assert(routeInfo.stopsNumber == 6);
-	assert(routeInfo.uniqueStops == 5);
-	assert(floor(routeInfo.length) == 4371.);
-	routeInfo = tc.getRouteInfo("750"s);
-	assert(routeInfo.stopsNumber == 5);
-	assert(routeInfo.uniqueStops == 3);
-	assert(floor(routeInfo.length) == 20939.);
-	try {
-		routeInfo = tc.getRouteInfo("noSuchRoute"s);
-		assert(false);
-	}
-	catch (std::invalid_argument&) {
-
-	}
-	catch (std::exception&) {
-		assert(false);
-	}
-}*/
-
-/*void IRTest3() {
-	TransportCatalogue tc = makeSimpleCatalogue();
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << 3 << "\n";
-	ss << "Bus 256"s << "\n";
-	ss << "Bus 750"s << "\n";
-	ss << "Bus 751"s << "\n";
-	std::stringstream so;
-	printQueries(ss, so, tc);
-	const std::vector<std::string> answers = { "Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length"s,
-		"Bus 750: 5 stops on route, 3 unique stops, 20939.5 route length"s,
-		"Bus 751: not found"s
-	};
-	for (const std::string& ans : answers) {
-		std::string line;
-		std::getline(so, line);
-		assert(line == ans);
-	}
-}*/
-
-
-
-/*void IRTest4() {
-	TransportCatalogue tc;
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << 13 << "\n";
-	ss << "Stop Tolstopaltsevo: 55.611087, 37.20829"s << "\n";
-	ss << "Stop Marushkino: 55.595884, 37.209755"s << "\n";
-	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
-	ss << "Bus 750: Tolstopaltsevo - Marushkino - Rasskazovka"s << "\n";
-	ss << "Stop Rasskazovka: 55.632761, 37.333324"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.6517"s << "\n";
-	ss << "Stop Biryusinka: 55.581065, 37.64839"s << "\n";
-	ss << "Stop Universam: 55.587655, 37.645687"s << "\n";
-	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656"s << "\n";
-	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164"s << "\n";
-	ss << "Bus 828: Biryulyovo Zapadnoye > Universam > Rossoshanskaya ulitsa > Biryulyovo Zapadnoye"s << "\n";
-	ss << "Stop Rossoshanskaya ulitsa: 55.595579, 37.605757"s << "\n";
-	ss << "Stop Prazhskaya: 55.611678, 37.603831"s << "\n";
-	ss << 6 << "\n";
-	ss << "Bus 256"s << "\n";
-	ss << "Bus 750"s << "\n";
-	ss << "Bus 751"s << "\n";
-	ss << "Stop Samara"s << "\n";
-	ss << "Stop Prazhskaya"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye"s << "\n";
-
-	addToCatalogue(ss, tc);
-	std::stringstream so;
-	printQueries(ss, so, tc);
-	const std::vector<std::string> answers = { "Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length"s,
-		"Bus 750: 5 stops on route, 3 unique stops, 20939.5 route length"s,
-		"Bus 751: not found"s,
-		"Stop Samara: not found"s,
-		"Stop Prazhskaya: no buses"s,
-		"Stop Biryulyovo Zapadnoye: buses 256 828"s
-	};
-	for (const std::string& ans : answers) {
-		std::string line;
-		std::getline(so, line);
-		assert(line == ans);
-	}
-}*/
-
 void IRTest5() {
 	TransportCatalogue tc;
 	using namespace std::string_literals;
@@ -289,8 +191,6 @@ void IRTest6() {
 	}
 }
 
-
-
 void testInputReader() {
 	IRTest1();
 	//IRTest2();
@@ -300,6 +200,20 @@ void testInputReader() {
 	IRTest6();
 }
 
+void test_json_reader1() {
+	std::string simpleTest;
+
+
+
+
+}
+
+void test_json_reader() {
+	test_json_reader1();
+
+}
+
+
 
 using namespace std;
 
@@ -307,8 +221,10 @@ int main() {
 
 	testTransportCatalogue();
 	testInputReader();
+	test_json_reader();
 
 	cout << "all tests passed successfully"s;
+
 
 
 	/*TransportCatalogue tc;

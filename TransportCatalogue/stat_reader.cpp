@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <algorithm>
 
+using namespace transport_catalogue;
 
 enum class outputQueryType {
     BUS,
@@ -59,7 +60,8 @@ void printRoutesOnStop(std::ostream& output, const Stop* stop, TransportCatalogu
         output << "no buses\n"s;
         return;
     }
-    auto routes = tc.getRoutesOnStop(stop);
+    const std::unordered_set<domain::Route*>* routesSet = tc.getRoutesOnStop(stop);
+    std::vector<Route*> routes{routesSet->cbegin(), routesSet->cend()};
     std::sort(routes.begin(), routes.end(), [](const Route* a, const Route* b) { return a->name < b->name; });
     output << "buses"s;
     for (const Route* route : routes) {

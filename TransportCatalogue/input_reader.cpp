@@ -8,6 +8,8 @@
 
 //TODO: add Check for invalid input like no stops on the route
 
+using namespace transport_catalogue;
+
 enum class inputQueryType {
     ADD_STOP,
     ADD_ROUTE

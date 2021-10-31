@@ -165,6 +165,9 @@
     <ClInclude Include="stat_reader.h" />
     <ClInclude Include="input_reader.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Текст.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

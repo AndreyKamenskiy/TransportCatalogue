@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <unordered_set>
 
+using namespace transport_catalogue;
+
 //добавить остановку в базу
 void TransportCatalogue::addStop(std::string_view name, Coordinates coordinates) {
 	std::string_view nameSV = addString(name);
@@ -29,7 +31,7 @@ void TransportCatalogue::updateStopCoordinates(std::string_view name, Coordinate
 }
 
 //поиск остановки по имени
-const Stop* TransportCatalogue::findStop(std::string_view name) {
+const Stop* TransportCatalogue::findStop(std::string_view name) const {
 	if (nameToStop_.count(name) == 0) {
 		using namespace std::string_literals;
 		throw std::invalid_argument("there is no such stop in the database: '"s + static_cast<std::string>(name) + "'"s);
@@ -37,7 +39,7 @@ const Stop* TransportCatalogue::findStop(std::string_view name) {
 	return nameToStop_.at(name);
 }
 
-bool TransportCatalogue::hasStop(std::string_view name)
+bool TransportCatalogue::hasStop(std::string_view name) const
 {
 	return nameToStop_.count(name) != 0;
 }
@@ -68,14 +70,14 @@ void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string
 }
 
 //поиск маршрута по имени
-const Route* TransportCatalogue::findRoute(std::string_view name) {
+const Route* TransportCatalogue::findRoute(std::string_view name) const {
 	if (nameToRoute_.count(name) == 0) {
 		return nullptr; // возможно лучше заменить на исключение.
 	}
 	return nameToRoute_.at(name);
 }
 
-const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) {
+const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) const {
 	if (!route) {
 		using namespace std::string_literals;
 		throw std::invalid_argument("invalid route pointer"s);
@@ -96,20 +98,22 @@ const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) {
 	return { static_cast<int>(route->stops.size()), static_cast<int>(unique.size()), length, length / geoLength };
 }
 
-const RouteInfo TransportCatalogue::getRouteInfo(const std::string_view routeName) {
+const RouteInfo TransportCatalogue::getRouteInfo(const std::string_view& routeName) const {
 	return	getRouteInfo(findRoute(routeName));
 }
 
 //Поиск маршрутов по остановке 
-size_t TransportCatalogue::getRoutesNumOnStop(const Stop* stop) {
+size_t TransportCatalogue::getRoutesNumOnStop(const Stop* stop) const {
 	return stopToRoutes_.count(stop);
 }
 
-std::vector<const Route*> TransportCatalogue::getRoutesOnStop(const Stop* stop) {
-	return { stopToRoutes_.at(stop).begin(), stopToRoutes_.at(stop).end() };
+const std::unordered_set<domain::Route*>* TransportCatalogue::getRoutesOnStop(const Stop* stop) const {
+	//return { stopToRoutes_.at(stop).begin(), stopToRoutes_.at(stop).end() };
+	return  &stopToRoutes_.at(stop); 
+	// работает быстро, но указатель может стать невалидным, если в каталог будет добавлена новая информация
 }
 
-double TransportCatalogue::getRealStopsDistance(const Stop* stopA, const Stop* stopB)
+double TransportCatalogue::getRealStopsDistance(const Stop* stopA, const Stop* stopB) const
 {
 	std::pair<const Stop*, const Stop*> pairAB{ stopA, stopB };
 	if (stopsDistance.count(pairAB) > 0) {
