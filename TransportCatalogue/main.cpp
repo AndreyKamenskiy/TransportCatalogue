@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include "transport_catalogue.h"
 #include "input_reader.h"
 #include "stat_reader.h"
@@ -200,9 +201,24 @@ void testInputReader() {
 	IRTest6();
 }
 
-void test_json_reader1() {
-	std::string simpleTest;
 
+std::string loadFile(std::string filename) {
+	std::ifstream is(filename, std::ios::ate);
+	if (!is.is_open()) {
+		return "";
+	}
+	auto size = is.tellg();
+	std::string str(size, '\0'); // construct string to stream size
+	is.seekg(0);
+	if (!is.read(&str[0], size)) {
+		str = "";
+	}
+	is.close();
+	return str;
+}
+
+void test_json_reader1() {
+	std::string simpleTest = loadFile("input_test1.json");
 
 
 

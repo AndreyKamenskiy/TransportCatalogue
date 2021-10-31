@@ -166,9 +166,17 @@
     <ClInclude Include="input_reader.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Текст.txt" />
+    <Text Include="input_test1.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="output_test1.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties input_3test1_1json__JsonSchema="https://beaujs.com/schema.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
