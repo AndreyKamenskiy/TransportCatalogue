@@ -95,6 +95,7 @@ private:
 
 	// словарь. расстояние между остановками. Расстояние от А до Б может быть не равно расстоянию от Б до А.
 	// Также может храниться расстояние от А до А.
+	//todo: change to int. The distance is measured in meters.
 	std::unordered_map<std::pair<const Stop*, const Stop*>, double, TwoStopHasher> stopsDistance;
 
 	std::string_view addString(std::string_view str) {
