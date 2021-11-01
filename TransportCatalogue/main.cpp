@@ -6,7 +6,9 @@
 #include "transport_catalogue.h"
 #include "input_reader.h"
 #include "stat_reader.h"
+#include "json.h"
 #include "json_reader.h"
+#include "request_handler.h"
 
 using namespace transport_catalogue;
 using namespace domain;
@@ -222,9 +224,17 @@ void test_json_reader1() {
 	std::string simpleTest = loadFile("input_test1.json");
 	std::stringstream strm{simpleTest};
 	json::Document inputJSON = json::Load(strm);
-
-	std::stringstream out{ simpleTest };
 	json::Print(inputJSON, std::cout);
+	std::cout << "\n";
+
+
+
+
+	std::string simpleResponse = loadFile("output_test1.json");
+	std::stringstream str1{ simpleResponse };
+	json::Document outJSON = json::Load(str1);
+	json::Print(outJSON, std::cout);
+	std::cout << "\n";
 
 }
 

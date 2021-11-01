@@ -1,12 +1,14 @@
 #pragma once
-#include <string_view>
+#include <istream>
 #include "json.h"
 #include "transport_catalogue.h"
 
-/*
- * Здесь можно разместить код наполнения транспортного справочника данными из JSON,
- * а также код обработки запросов к базе и формирование массива ответов в формате JSON
- */
+class JsonReader {
+public:
+	JsonReader(std::istream& input);
+	transport_catalogue::TransportCatalogue create_catalogue();
+	json::Document get_responce(transport_catalogue::TransportCatalogue);
+private:
+	json::Document requests_{ { nullptr } };
+};
 
-/*void load_catalogue_from_JSON(transport_catalogue::TransportCatalogue& tc, std::string_view json_text) {
-}*/
