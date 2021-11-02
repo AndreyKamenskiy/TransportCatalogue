@@ -125,7 +125,7 @@ void add_routes(transport_catalogue::TransportCatalogue& tc,
 }
 
 
-transport_catalogue::TransportCatalogue JsonReader::create_catalogue(transport_catalogue::TransportCatalogue& tc)
+void JsonReader::add_to_catalogue(transport_catalogue::TransportCatalogue& tc)
 {
 	using namespace std::literals::string_literals;
 	using namespace json_requests;
@@ -172,7 +172,7 @@ transport_catalogue::TransportCatalogue JsonReader::create_catalogue(transport_c
 	return tc;
 }
 
-json::Document JsonReader::get_responce(transport_catalogue::TransportCatalogue)
+json::Document JsonReader::get_responce()
 {
 	return json::Document(json::Node{});
 }

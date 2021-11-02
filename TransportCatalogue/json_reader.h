@@ -6,9 +6,9 @@
 class JsonReader {
 public:
 	JsonReader(std::istream& input);
-	transport_catalogue::TransportCatalogue create_catalogue(transport_catalogue::TransportCatalogue& tc);
-	json::Document get_responce(transport_catalogue::TransportCatalogue);
+	void add_to_catalogue(transport_catalogue::TransportCatalogue& tc);
+	json::Document get_responce();
 private:
-	json::Document requests_{ json::Node{} };
+	json::Document requests_{ json::Node{} };	
 };
 

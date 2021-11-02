@@ -229,16 +229,21 @@ void test_json_reader1() {
 	std::cout << "\n";*/
 	JsonReader jr{strm};
 	TransportCatalogue tc;
-	jr.create_catalogue(tc);
+	jr.add_to_catalogue(tc);
 	assert(tc.hasStop("Ривьерский мост"s));
 	assert(tc.hasStop("Морской вокзал"s));
 	
+	RequestHandler rh(tc);
 
+
+	
+	/*
 	std::string simpleResponse = loadFile("output_test1.json");
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
 	json::Print(outJSON, std::cout);
 	std::cout << "\n";
+	*/
 
 
 
