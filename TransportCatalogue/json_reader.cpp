@@ -14,6 +14,7 @@ const std::string stop_type = "Stop"s;
 
 const std::string type_key = "type"s;
 const std::string name_key = "name"s;
+const std::string id_key = "id"s;
 const std::string latitude_key = "latitude"s;
 const std::string longitude_key = "longitude"s;
 const std::string routes_key = "stops"s;
@@ -33,9 +34,6 @@ void checking_base_request_validity(const json::Node& request) {
 	if (!request.IsMap()) {
 		throw std::logic_error("Node is not Dict type"s);
 	}
-	if (!request.IsMap()) {
-		throw std::logic_error("Node is not Dict type"s);
-	}
 	const json::Dict& map = request.AsMap();
 	if (map.count(name_key) == 0) {
 		throw std::logic_error("There is no name key in the request"s);
@@ -45,6 +43,9 @@ void checking_base_request_validity(const json::Node& request) {
 	}
 	if (map.count(type_key) == 0) {
 		throw std::logic_error("There is no type key in the request"s);
+	}
+	if (!map.at(type_key).IsString()) {
+		throw std::logic_error("Type key is not string type"s);
 	}
 	if (map.at(type_key) == route_type) {
 		if (map.count(circle_route_key) == 0) {
@@ -125,7 +126,7 @@ void add_routes(transport_catalogue::TransportCatalogue& tc,
 }
 
 
-void JsonReader::add_to_catalogue(transport_catalogue::TransportCatalogue& tc)
+void JsonReader::add_to_catalogue(transport_catalogue::TransportCatalogue& tc) const
 {
 	using namespace std::literals::string_literals;
 	using namespace json_requests;
@@ -171,7 +172,71 @@ void JsonReader::add_to_catalogue(transport_catalogue::TransportCatalogue& tc)
 	add_routes(tc, add_route_requests);
 }
 
-json::Document JsonReader::get_responce()
+void checking_stat_request_validity(const json::Node& request) {
+	//todo: сократить повторяющийся код
+	using namespace std::literals::string_literals;
+	using namespace json_requests;
+	if (!request.IsMap()) {
+		throw std::logic_error("Node is not Dict type"s);
+	}
+	//cheching id
+	const json::Dict& map = request.AsMap();
+	if (map.count(id_key) == 0) {
+		throw std::logic_error("There is no id key in the request"s);
+	}
+	if (!map.at(id_key).IsInt()) {
+		throw std::logic_error("Id key is not int type"s);
+	}
+	//cheching name
+	const json::Dict& map = request.AsMap();
+	if (map.count(name_key) == 0) {
+		throw std::logic_error("There is no name key in the request"s);
+	}
+	if (!map.at(name_key).IsString()) {
+		throw std::logic_error("Name key is not string type"s);
+	}
+	//cheching type
+	if (map.count(type_key) == 0) {
+		throw std::logic_error("There is no type key in the request"s);
+	}
+	if (!map.at(type_key).IsString()) {
+		throw std::logic_error("Type key is not string type"s);
+	}
+	if (map.at(type_key) != route_type || map.at(type_key) != stop_type) {
+		throw std::logic_error("Unknown request type"s);
+	}
+}
+
+
+
+
+json::Document JsonReader::get_responce(const RequestHandler& rh) const
 {
-	return json::Document(json::Node{});
+	using namespace std::literals::string_literals;
+	using namespace json_requests;
+	if (!requests_.GetRoot().IsMap()) {
+		throw std::logic_error("Root node is not Dict type"s);
+	}
+	const json::Dict& map = requests_.GetRoot().AsMap();
+	if (map.count(stat_requests) == 0) {
+		throw std::logic_error("Stat requests are missing"s);
+	}
+	if (!map.at(json_requests::base_requests).IsArray()) {
+		throw std::logic_error("Stat requests are not an array type"s);
+	}
+	const json::Array& stat_requests = map.at(json_requests::base_requests).AsArray();
+	json::Dict json_answers;
+	for (const json::Node& request : stat_requests) {
+		//Is the request valid?
+		checking_stat_request_validity(request);
+		// prepare request
+
+		// ask request
+
+		// convert answer to JSON
+
+		// add json to the document
+
+	}
+	return json::Document(json::Node(std::move(json_answers)));
 }

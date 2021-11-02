@@ -234,20 +234,12 @@ void test_json_reader1() {
 	assert(tc.hasStop("Морской вокзал"s));
 	
 	RequestHandler rh(tc);
+	json::Document requestJSON = jr.get_responce(rh);
 
-
-	
-	/*
 	std::string simpleResponse = loadFile("output_test1.json");
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
-	json::Print(outJSON, std::cout);
-	std::cout << "\n";
-	*/
-
-
-
-
+	assert(requestJSON == outJSON);
 }
 
 void test_json_reader() {
@@ -265,6 +257,7 @@ int main() {
 	testInputReader();
 	setlocale(LC_ALL, "Russian");
 	test_json_reader();
+	//todo: добавить тест на некорректные запросы. нет полей, поля неправильного типа и т.п.
 
 	cout << "all tests passed successfully"s;
 
