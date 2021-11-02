@@ -85,7 +85,6 @@ void checking_base_request_validity(const json::Node& request) {
 	}
 }
 
-
 void add_distances(transport_catalogue::TransportCatalogue& tc, 
 	const domain::Stop* stop, 
 	json::Dict distances) 
@@ -103,6 +102,22 @@ void add_distances(transport_catalogue::TransportCatalogue& tc,
 		}
 		// добавим дистанцию до остановки
 		tc.addStopsDistance(stop, toStop, distance.AsInt());
+	}
+}
+
+void add_routes(transport_catalogue::TransportCatalogue& tc,
+	std::vector<const json::Node&> add_route_requests) {
+	using namespace json_requests;
+	for (const json::Node& request : add_route_requests) {
+		auto& map = request.AsMap();
+		std::vector<std::string_view> stopNames;
+		for (auto& stop : map.at(routes_key).AsArray()) {
+			if (!stop.IsString()) {
+				throw std::logic_error("Stop name is not string type"s);
+			}
+			stopNames.push_back(stop.AsString());
+		}
+		tc.addRoute(map.at(name_key).AsString(), stopNames);
 	}
 }
 
@@ -124,6 +139,7 @@ transport_catalogue::TransportCatalogue JsonReader::create_catalogue()
 	}
 	transport_catalogue::TransportCatalogue tc;
 	const json::Array& base_requests = map.at(json_requests::base_requests).AsArray();
+	std::vector<const json::Node&> add_route_requests;
 	for (const json::Node& request : base_requests) {
 		checking_base_request_validity(request);
 		const json::Dict& map = request.AsMap();
@@ -146,17 +162,11 @@ transport_catalogue::TransportCatalogue JsonReader::create_catalogue()
 		}
 		else { // можем не проверять на другие виды запросов, т.к. мы их отсекли при проверке валидации
 			//route_type
-			
-		
+			add_route_requests.push_back(request);
 		}
-
-
 	}
-
-
-
-			
-	return transport_catalogue::TransportCatalogue();
+	add_routes(tc, add_route_requests);
+	return tc;
 }
 
 json::Document JsonReader::get_responce(transport_catalogue::TransportCatalogue)
