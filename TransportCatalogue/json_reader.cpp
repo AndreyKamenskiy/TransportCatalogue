@@ -169,7 +169,6 @@ void JsonReader::add_to_catalogue(transport_catalogue::TransportCatalogue& tc)
 		}
 	}
 	add_routes(tc, add_route_requests);
-	return tc;
 }
 
 json::Document JsonReader::get_responce()
