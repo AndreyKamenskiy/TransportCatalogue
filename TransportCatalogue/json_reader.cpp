@@ -14,12 +14,22 @@ const std::string stop_type = "Stop"s;
 
 const std::string type_key = "type"s;
 const std::string name_key = "name"s;
-const std::string id_key = "id"s;
+const std::string id_key = "id"s; 
+const std::string error_message_key = "error_message"s;
+const std::string request_id_key = "request_id"s;
 const std::string latitude_key = "latitude"s;
 const std::string longitude_key = "longitude"s;
 const std::string routes_key = "stops"s;
 const std::string circle_route_key = "is_roundtrip"s;
 const std::string distances_key = "road_distances"s;
+const std::string routes_on_stop_key = "buses"s;
+
+const std::string curvature_key = "curvature"s;
+const std::string route_length_key = "route_length"s;
+const std::string stop_count_key = "stop_count"s;
+const std::string unique_stop_count_key = "unique_stop_count"s;
+
+const std::string not_found_message = "not found"s;
 }
 
 JsonReader::JsonReader(std::istream& input)
@@ -179,8 +189,8 @@ void checking_stat_request_validity(const json::Node& request) {
 	if (!request.IsMap()) {
 		throw std::logic_error("Node is not Dict type"s);
 	}
-	//cheching id
 	const json::Dict& map = request.AsMap();
+	//cheching id
 	if (map.count(id_key) == 0) {
 		throw std::logic_error("There is no id key in the request"s);
 	}
@@ -188,7 +198,6 @@ void checking_stat_request_validity(const json::Node& request) {
 		throw std::logic_error("Id key is not int type"s);
 	}
 	//cheching name
-	const json::Dict& map = request.AsMap();
 	if (map.count(name_key) == 0) {
 		throw std::logic_error("There is no name key in the request"s);
 	}
@@ -202,7 +211,7 @@ void checking_stat_request_validity(const json::Node& request) {
 	if (!map.at(type_key).IsString()) {
 		throw std::logic_error("Type key is not string type"s);
 	}
-	if (map.at(type_key) != route_type || map.at(type_key) != stop_type) {
+	if (map.at(type_key).AsString() != route_type && map.at(type_key).AsString() != stop_type) {
 		throw std::logic_error("Unknown request type"s);
 	}
 }
@@ -212,6 +221,8 @@ void checking_stat_request_validity(const json::Node& request) {
 
 json::Document JsonReader::get_responce(const RequestHandler& rh) const
 {
+	//todo: move blocks of code to the functions. Make method smaller.
+
 	using namespace std::literals::string_literals;
 	using namespace json_requests;
 	if (!requests_.GetRoot().IsMap()) {
@@ -221,22 +232,53 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 	if (map.count(stat_requests) == 0) {
 		throw std::logic_error("Stat requests are missing"s);
 	}
-	if (!map.at(json_requests::base_requests).IsArray()) {
+	if (!map.at(stat_requests).IsArray()) {
 		throw std::logic_error("Stat requests are not an array type"s);
 	}
-	const json::Array& stat_requests = map.at(json_requests::base_requests).AsArray();
-	json::Dict json_answers;
+	const json::Array& stat_requests = map.at(json_requests::stat_requests).AsArray();
+	json::Array json_answers;
 	for (const json::Node& request : stat_requests) {
 		//Is the request valid?
 		checking_stat_request_validity(request);
 		// prepare request
-
+		const json::Dict& request_dict = request.AsMap();
+		int id = request_dict.at(id_key).AsInt();
+		const std::string& name = request_dict.at(name_key).AsString();
+		json::Dict request_answer;
+		request_answer.insert({ request_id_key, json::Node(id) });
 		// ask request
-
-		// convert answer to JSON
-
+		if (request_dict.at(type_key) == stop_type) {
+			try {
+				const std::unordered_set<domain::Route*>* routes_on_stop = rh.GetBusesByStop(name);
+				json::Array routes_array;
+				for (const domain::Route* current_route : *routes_on_stop) {
+					routes_array.push_back(json::Node{ static_cast<std::string>(current_route->name) });
+				}
+				request_answer.insert({ routes_on_stop_key, routes_array });
+			}
+			catch (std::invalid_argument& exc) {
+				// не найдена остановка с таким именем
+				request_answer.insert({ error_message_key, json::Node(not_found_message) });
+			}
+		}
+		else { // можем не проверять на другие виды запросов, т.к. мы их отсекли при проверке валидации
+			//route_type
+			std::optional<domain::RouteInfo> route_info = rh.GetBusStat(name);
+			if (route_info.has_value()) {
+				request_answer.insert({ curvature_key, json::Node(route_info->curvature) });
+				request_answer.insert({ stop_count_key, json::Node(route_info->stopsNumber) });
+				request_answer.insert({ unique_stop_count_key, json::Node(route_info->uniqueStops) });\
+				//todo: не забыть убрать после изменения domain::RouteInfo.length на int
+				int len = static_cast<int>(route_info->length);
+				request_answer.insert({ unique_stop_count_key, json::Node(len) });
+			}
+			else {
+				//не нашли такой маршрут
+				request_answer.insert({ error_message_key, json::Node(not_found_message) });
+			}
+		}
 		// add json to the document
-
+		json_answers.push_back(request_answer);
 	}
 	return json::Document(json::Node(std::move(json_answers)));
 }

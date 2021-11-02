@@ -105,6 +105,7 @@ namespace json {
                         // код ниже попробует преобразовать строку в double
                     }
                 }
+                double d = std::stod("43,58779"s);
                 return std::stod(parsed_num);
             }
             catch (...) {

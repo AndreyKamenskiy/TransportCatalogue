@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "request_handler.h"
 
 RequestHandler::RequestHandler(const transport_catalogue::TransportCatalogue& db)
@@ -7,10 +8,12 @@ RequestHandler::RequestHandler(const transport_catalogue::TransportCatalogue& db
 
 std::optional<domain::RouteInfo> RequestHandler::GetBusStat(const std::string_view& bus_name) const
 {
-	if (db_.hasStop(bus_name)) {
-		return { db_.getRouteInfo(bus_name) };
+	try {
+		return db_.getRouteInfo(bus_name);
 	}
-	return {};
+	catch (std::invalid_argument& exc) {
+		return {};
+	}
 }
 
 const std::unordered_set<domain::Route*>* RequestHandler::GetBusesByStop(const std::string_view& stop_name) const

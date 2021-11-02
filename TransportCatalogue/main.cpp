@@ -235,10 +235,13 @@ void test_json_reader1() {
 	
 	RequestHandler rh(tc);
 	json::Document requestJSON = jr.get_responce(rh);
+	json::Print(requestJSON, std::cout);
 
 	std::string simpleResponse = loadFile("output_test1.json");
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
+
+
 	assert(requestJSON == outJSON);
 }
 
@@ -255,7 +258,7 @@ int main() {
 
 	testTransportCatalogue();
 	testInputReader();
-	setlocale(LC_ALL, "Russian");
+	setlocale(LC_CTYPE, "Russian");
 	test_json_reader();
 	//todo: добавить тест на некорректные запросы. нет полей, поля неправильного типа и т.п.
 

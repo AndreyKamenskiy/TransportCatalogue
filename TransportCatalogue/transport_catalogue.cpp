@@ -84,6 +84,7 @@ const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) const {
 	}
 	std::unordered_set<std::string_view> unique;
 	//get Length and uniques of the route;
+	//todo:make length int type
 	double length = 0;
 	double geoLength = 0;
 	const Stop* previous = nullptr;
