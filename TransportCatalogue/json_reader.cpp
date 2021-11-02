@@ -1,6 +1,8 @@
-#include "json_reader.h"
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include <string_view>
+#include "json_reader.h"
 
 
 namespace json_requests {
@@ -19,7 +21,7 @@ const std::string circle_route_key = "is_roundtrip"s;
 const std::string distances_key = "road_distances"s;
 }
 
-JsonReader::JsonReader(std::istream& input) 
+JsonReader::JsonReader(std::istream& input)
 {	
 	requests_ = json::Load(input);
 }
@@ -85,9 +87,10 @@ void checking_base_request_validity(const json::Node& request) {
 	}
 }
 
+
 void add_distances(transport_catalogue::TransportCatalogue& tc, 
 	const domain::Stop* stop, 
-	json::Dict distances) 
+	const json::Dict& distances) 
 {
 	for (auto& [toStopName, distance] : distances) {
 		const domain::Stop* toStop;
@@ -106,10 +109,10 @@ void add_distances(transport_catalogue::TransportCatalogue& tc,
 }
 
 void add_routes(transport_catalogue::TransportCatalogue& tc,
-	std::vector<const json::Node&> add_route_requests) {
+	std::vector<const json::Node*>& add_route_requests) {
 	using namespace json_requests;
-	for (const json::Node& request : add_route_requests) {
-		auto& map = request.AsMap();
+	for (const json::Node* request : add_route_requests) {
+		auto& map = request->AsMap();
 		std::vector<std::string_view> stopNames;
 		for (auto& stop : map.at(routes_key).AsArray()) {
 			if (!stop.IsString()) {
@@ -122,7 +125,7 @@ void add_routes(transport_catalogue::TransportCatalogue& tc,
 }
 
 
-transport_catalogue::TransportCatalogue JsonReader::create_catalogue()
+transport_catalogue::TransportCatalogue JsonReader::create_catalogue(transport_catalogue::TransportCatalogue& tc)
 {
 	using namespace std::literals::string_literals;
 	using namespace json_requests;
@@ -137,17 +140,17 @@ transport_catalogue::TransportCatalogue JsonReader::create_catalogue()
 	if (!map.at(json_requests::base_requests).IsArray()) {
 		throw std::logic_error("Base requests are not an array type"s);
 	}
-	transport_catalogue::TransportCatalogue tc;
+	
 	const json::Array& base_requests = map.at(json_requests::base_requests).AsArray();
-	std::vector<const json::Node&> add_route_requests;
+	std::vector<const json::Node*> add_route_requests;
 	for (const json::Node& request : base_requests) {
 		checking_base_request_validity(request);
-		const json::Dict& map = request.AsMap();
-		if (map.at(type_key) == stop_type) {
-			const std::string& name = map.at(name_key).AsString();
+		const json::Dict& request_dict = request.AsMap();
+		if (request_dict.at(type_key) == stop_type) {
+			const std::string& name = request_dict.at(name_key).AsString();
 			domain::Coordinates coordinates{
-				map.at(latitude_key).AsDouble(),
-				map.at(longitude_key).AsDouble()
+				request_dict.at(latitude_key).AsDouble(),
+				request_dict.at(longitude_key).AsDouble()
 			};
 			//todo: change addStop to update coordinates if the stop already exist
 			if (tc.hasStop(name)) {
@@ -158,11 +161,11 @@ transport_catalogue::TransportCatalogue JsonReader::create_catalogue()
 				tc.addStop(name, coordinates);
 			}
 			const domain::Stop* stop = tc.findStop(name);
-			add_distances(tc, stop, map.at(distances_key).AsMap());
+			add_distances(tc, stop, request_dict.at(distances_key).AsMap());
 		}
 		else { // можем не проверять на другие виды запросов, т.к. мы их отсекли при проверке валидации
 			//route_type
-			add_route_requests.push_back(request);
+			add_route_requests.push_back(&request);
 		}
 	}
 	add_routes(tc, add_route_requests);
@@ -171,5 +174,5 @@ transport_catalogue::TransportCatalogue JsonReader::create_catalogue()
 
 json::Document JsonReader::get_responce(transport_catalogue::TransportCatalogue)
 {
-	return json::Document({nullptr});
+	return json::Document(json::Node{});
 }

@@ -221,20 +221,27 @@ std::string loadFile(std::string filename) {
 }
 
 void test_json_reader1() {
+	using namespace std::literals::string_literals;
 	std::string simpleTest = loadFile("input_test1.json");
 	std::stringstream strm{simpleTest};
-	json::Document inputJSON = json::Load(strm);
+	/*json::Document inputJSON = json::Load(strm);
 	json::Print(inputJSON, std::cout);
-	std::cout << "\n";
-
-
-
+	std::cout << "\n";*/
+	JsonReader jr{strm};
+	TransportCatalogue tc;
+	jr.create_catalogue(tc);
+	assert(tc.hasStop("Ривьерский мост"s));
+	assert(tc.hasStop("Морской вокзал"s));
+	
 
 	std::string simpleResponse = loadFile("output_test1.json");
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
 	json::Print(outJSON, std::cout);
 	std::cout << "\n";
+
+
+
 
 }
 
