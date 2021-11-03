@@ -240,7 +240,7 @@ void test_json_reader1() {
 	std::string simpleResponse = loadFile("output_test1.json");
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
-
+	json::Print(outJSON, std::cout);
 
 	assert(requestJSON == outJSON);
 }

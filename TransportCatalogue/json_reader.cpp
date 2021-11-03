@@ -131,6 +131,12 @@ void add_routes(transport_catalogue::TransportCatalogue& tc,
 			}
 			stopNames.push_back(stop.AsString());
 		}
+		if (!map.at(circle_route_key).AsBool()) {
+			//если маршрут не цикличный, то мы должны добавить обратный ход
+			for (int i = stopNames.size() - 2; i >= 0; --i) {
+				stopNames.push_back(stopNames[i]);
+			}
+		}
 		tc.addRoute(map.at(name_key).AsString(), stopNames);
 	}
 }
@@ -270,7 +276,7 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 				request_answer.insert({ unique_stop_count_key, json::Node(route_info->uniqueStops) });\
 				//todo: не забыть убрать после изменения domain::RouteInfo.length на int
 				int len = static_cast<int>(route_info->length);
-				request_answer.insert({ unique_stop_count_key, json::Node(len) });
+				request_answer.insert({ route_length_key, json::Node(len) });
 			}
 			else {
 				//не нашли такой маршрут
