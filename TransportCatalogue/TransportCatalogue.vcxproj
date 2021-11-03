@@ -178,7 +178,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties input_3test1_1json__JsonSchema="https://json.schemastore.org/aiproj.json" />
+      <UserProperties input_3test1_1json__JsonSchema="https://json.schemastore.org/aiproj.json" input_3test2_1json__JsonSchema="https://jenkins-x.io/schemas/jx-schema.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

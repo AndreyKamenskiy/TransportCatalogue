@@ -132,12 +132,6 @@
   "stat_requests": [
     {
       "id": 1,
-      "type": "Stop",
-      "name": "Samara"
-    },
-
-    {
-      "id": 1,
       "type": "Bus",
       "name": "256"
     },

@@ -76,7 +76,7 @@ public:
     void operator()(Array arr);
     void operator()(Dict map);
 private:
-    const std::string tabulation_ = "\t";
+    const std::string tabulation_ = "    ";
     std::ostream& output_;
     int depth_;
 };
