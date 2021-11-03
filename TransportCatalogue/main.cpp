@@ -232,6 +232,9 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	std::string simpleResponse = loadFile(answerFile);
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
+	json::Print(requestJSON, std::cout);
+	json::Print(outJSON, std::cout);
+
 	assert(requestJSON == outJSON);
 }
 
