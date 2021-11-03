@@ -402,6 +402,9 @@ namespace json {
 
     bool operator==(const Node& lhs, const Node& rhs)
     {
+        if (lhs.IsDouble() && !lhs.IsInt() && rhs.IsDouble() && !rhs.IsInt()) {
+            return (std::abs(lhs.AsDouble() - rhs.AsDouble())) < 0,000001;
+        }
         return lhs.GetValue() == rhs.GetValue();
     }
 
