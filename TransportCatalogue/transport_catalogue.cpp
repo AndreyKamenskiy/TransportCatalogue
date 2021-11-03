@@ -110,7 +110,10 @@ size_t TransportCatalogue::getRoutesNumOnStop(const Stop* stop) const {
 
 const std::unordered_set<domain::Route*>* TransportCatalogue::getRoutesOnStop(const Stop* stop) const {
 	//return { stopToRoutes_.at(stop).begin(), stopToRoutes_.at(stop).end() };
-	return  &stopToRoutes_.at(stop); 
+	if (stopToRoutes_.count(stop) == 0) {
+		return nullptr; // если через остановку не проходит ни один автобус, вернем nullptr
+	}
+	return  &stopToRoutes_.at(stop);
 	// работает быстро, но указатель может стать невалидным, если в каталог будет добавлена новая информация
 }
 

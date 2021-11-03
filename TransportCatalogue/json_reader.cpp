@@ -257,8 +257,11 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 			try {
 				const std::unordered_set<domain::Route*>* routes_on_stop = rh.GetBusesByStop(name);
 				json::Array routes_array;
-				for (const domain::Route* current_route : *routes_on_stop) {
-					routes_array.push_back(json::Node{ static_cast<std::string>(current_route->name) });
+				if (routes_on_stop) {
+					//если найден хоть один маршрут
+					for (const domain::Route* current_route : *routes_on_stop) {
+						routes_array.push_back(json::Node{ static_cast<std::string>(current_route->name) });
+					}
 				}
 				request_answer.insert({ routes_on_stop_key, routes_array });
 			}
