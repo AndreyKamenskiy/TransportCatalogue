@@ -169,14 +169,16 @@
     <Text Include="input_test1.json" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="input_test2.json" />
     <None Include="output_test1.json" />
+    <None Include="output_test2.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties />
+      <UserProperties input_3test1_1json__JsonSchema="https://json.schemastore.org/aiproj.json" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

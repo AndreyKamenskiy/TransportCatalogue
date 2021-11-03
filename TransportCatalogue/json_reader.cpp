@@ -262,7 +262,7 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 				}
 				request_answer.insert({ routes_on_stop_key, routes_array });
 			}
-			catch (std::invalid_argument& exc) {
+			catch (std::invalid_argument&) {
 				// не найдена остановка с таким именем
 				request_answer.insert({ error_message_key, json::Node(not_found_message) });
 			}

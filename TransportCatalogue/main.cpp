@@ -220,33 +220,71 @@ std::string loadFile(std::string filename) {
 	return str;
 }
 
-void test_json_reader1() {
+void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	using namespace std::literals::string_literals;
-	std::string simpleTest = loadFile("input_test1.json");
-	std::stringstream strm{simpleTest};
-	/*json::Document inputJSON = json::Load(strm);
-	json::Print(inputJSON, std::cout);
-	std::cout << "\n";*/
-	JsonReader jr{strm};
+	std::string simpleTest = loadFile(inputFile);
+	std::stringstream strm{ simpleTest };
+	JsonReader jr{ strm };
 	TransportCatalogue tc;
 	jr.add_to_catalogue(tc);
-	assert(tc.hasStop("Ривьерский мост"s));
-	assert(tc.hasStop("Морской вокзал"s));
-	
 	RequestHandler rh(tc);
 	json::Document requestJSON = jr.get_responce(rh);
-	json::Print(requestJSON, std::cout);
-
-	std::string simpleResponse = loadFile("output_test1.json");
+	std::string simpleResponse = loadFile(answerFile);
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
-	json::Print(outJSON, std::cout);
-
 	assert(requestJSON == outJSON);
+}
+
+
+void test_json_reader1() {
+	TestCatalogueWithJsonFiles("input_test1.json", "output_test1.json");
+	TestCatalogueWithJsonFiles("input_test2.json", "output_test2.json");
 }
 
 void test_json_reader() {
 	test_json_reader1();
+
+	TransportCatalogue tc;
+	using namespace std::string_literals;
+	std::stringstream ss;
+	ss << 13 << "\n";
+	ss << "Stop Tolstopaltsevo: 55.611087, 37.20829, 3900m to Marushkino"s << "\n";
+	ss << "Stop Marushkino: 55.595884, 37.209755, 9900m to Rasskazovka, 100m to Marushkino"s << "\n";
+	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
+	ss << "Bus 750: Tolstopaltsevo - Marushkino - Marushkino - Rasskazovka"s << "\n";
+	ss << "Stop Rasskazovka: 55.632761, 37.333324, 9500m to Marushkino"s << "\n";
+	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.6517, 7500m to Rossoshanskaya ulitsa, 1800m to Biryusinka, 2400m to Universam"s << "\n";
+	ss << "Stop Biryusinka: 55.581065, 37.64839, 750m to Universam"s << "\n";
+	ss << "Stop Universam: 55.587655, 37.645687, 5600m to Rossoshanskaya ulitsa, 900m to Biryulyovo Tovarnaya"s << "\n";
+	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656, 1300m to Biryulyovo Passazhirskaya"s << "\n";
+	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164, 1200m to Biryulyovo Zapadnoye"s << "\n";
+	ss << "Bus 828: Biryulyovo Zapadnoye > Universam > Rossoshanskaya ulitsa > Biryulyovo Zapadnoye"s << "\n";
+	ss << "Stop Rossoshanskaya ulitsa: 55.595579, 37.605757"s << "\n";
+	ss << "Stop Prazhskaya: 55.611678, 37.603831"s << "\n";
+	ss << 6 << "\n";
+	ss << "Bus 256"s << "\n";
+	ss << "Bus 750"s << "\n";
+	ss << "Bus 751"s << "\n";
+	ss << "Stop Samara"s << "\n";
+	ss << "Stop Prazhskaya"s << "\n";
+	ss << "Stop Biryulyovo Zapadnoye"s << "\n";
+
+	std::cout << ss.str();
+	const std::vector<std::string> answers = {
+		"Bus 256: 6 stops on route, 5 unique stops, 5950 route length, 1.36124 curvature"s,
+		"Bus 750: 7 stops on route, 3 unique stops, 27400 route length, 1.30853 curvature"s,
+		"Bus 751: not found"s,
+		"Stop Samara: not found"s,
+		"Stop Prazhskaya: no buses"s,
+		"Stop Biryulyovo Zapadnoye: buses 256 828"s
+	};
+	for (auto& str : answers) {
+
+		std::cout << str << std::endl;
+
+	}
+
+
 
 }
 
