@@ -58,8 +58,43 @@ void TCTest1() {
 	assert(!rt);
 }
 
+
+void testDistance() {
+	using namespace std;
+	TransportCatalogue tc;
+
+	string s1 = "stop1";
+	string s2 = "stop2";
+	string s3 = "stop3";
+	string s4 = "stop4";
+	tc.addStop(s1, { 43.587795, 39.716901 });
+	tc.addStop(s2, { 43.58770, 39.71690 });
+	tc.addStop(s3, { 43.58775, 39.71695 });
+	tc.addStop(s4, { 43.58785, 39.71685 });
+	const Stop* s1p = tc.findStop(s1);
+	const Stop* s2p = tc.findStop(s2);
+	const Stop* s3p = tc.findStop(s3);
+	const Stop* s4p = tc.findStop(s3);
+	tc.addStopsDistance(s1p, s2p, 100);
+	tc.addStopsDistance(s2p, s1p, 400);
+	tc.addStopsDistance(s2p, s2p, 500);
+	tc.addStopsDistance(s1p, s1p, 600);
+	tc.addStopsDistance(s1p, s3p, 700);
+	assert(tc.getRealStopsDistance(s1p, s2p) == 100);
+	assert(tc.getRealStopsDistance(s2p, s1p) == 400);
+	assert(tc.getRealStopsDistance(s2p, s2p) == 500);
+	assert(tc.getRealStopsDistance(s1p, s1p) == 600);
+	assert(tc.getRealStopsDistance(s1p, s3p) == 700);
+	assert(tc.getRealStopsDistance(s3p, s1p) == 700);
+	assert(tc.getRealStopsDistance(s3p, s3p) == 0);
+	assert(tc.getRealStopsDistance(s3p, s2p) == -1);
+	assert(tc.getRealStopsDistance(s2p, s3p) == -1);
+
+}
+
 void testTransportCatalogue() {
 	TCTest1();
+	testDistance();
 }
 
 std::string loadFile(std::string filename) {
@@ -89,8 +124,8 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	std::string simpleResponse = loadFile(answerFile);
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
-	//json::Print(requestJSON, std::cout);
-	//json::Print(outJSON, std::cout);
+	json::Print(requestJSON, std::cout);
+	json::Print(outJSON, std::cout);
 	assert(requestJSON == outJSON);
 }
 
@@ -98,6 +133,7 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 void test_json_reader1() {
 	TestCatalogueWithJsonFiles("input_test1.json", "output_test1.json");
 	TestCatalogueWithJsonFiles("input_test2.json", "output_test2.json");
+	TestCatalogueWithJsonFiles("input_test3.json", "output_test3.json");
 }
 
 void test_json_reader() {

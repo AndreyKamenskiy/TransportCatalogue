@@ -89,7 +89,9 @@ private:
 			/*TODO: modify like here https ://stackoverflow.com/questions/919612/mapping-two-integers-to-one-in-a-unique-and-deterministic-way
 			hash(a, b) = (a + b) * (a + b + 1 ) / 2 + b; */
 			std::hash<const void*> phasher; // хэшер для указателя.
-			return phasher(stops.first) + phasher(stops.second);
+			size_t a = phasher(stops.first);
+			size_t b = phasher(stops.second);
+			return (a + b) * (a + b + 1) / 2 + b ;
 		}
 	};
 

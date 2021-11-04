@@ -125,12 +125,12 @@ int TransportCatalogue::getRealStopsDistance(const Stop* stopA, const Stop* stop
 	}
 	else {
 		if (stopA == stopB) {
-			return 0.0;
+			return 0;
 		}
 		std::pair<const Stop*, const Stop*> pairBA{ stopB, stopA };
 		if (stopsDistance.count(pairBA) > 0) {
 			return stopsDistance.at(pairBA);
 		}
 	}
-	return -1.0;
+	return -1; // такого быть не должно!!!
 }

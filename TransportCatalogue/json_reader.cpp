@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include <algorithm>
 #include "json_reader.h"
 
 
@@ -244,6 +245,8 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 					for (const domain::Route* current_route : *routes_on_stop) {
 						routes_array.push_back(json::Node{ static_cast<std::string>(current_route->name) });
 					}
+					//buses — массив названий автобусных маршрутов, проходящих через эту остановку. Названия маршрутов должны быть отсортированы в лексикографическом порядке.
+					std::sort(routes_array.begin(), routes_array.end(), [](const json::Node& a, const json::Node& b) { return a.AsString() < b.AsString(); });
 				}
 				request_answer.insert({ routes_on_stop_key, routes_array });
 			}

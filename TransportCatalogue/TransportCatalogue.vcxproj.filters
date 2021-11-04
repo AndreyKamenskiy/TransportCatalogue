@@ -81,5 +81,11 @@
     <None Include="output_test2.json">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="input_test3.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="output_test3.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
 </Project>

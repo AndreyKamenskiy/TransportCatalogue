@@ -105,7 +105,6 @@ namespace json {
                         // код ниже попробует преобразовать строку в double
                     }
                 }
-                double d = std::stod("43,58779"s);
                 return std::stod(parsed_num);
             }
             catch (...) {
@@ -403,7 +402,7 @@ namespace json {
     bool operator==(const Node& lhs, const Node& rhs)
     {
         if (lhs.IsDouble() && !lhs.IsInt() && rhs.IsDouble() && !rhs.IsInt()) {
-            return (std::abs(lhs.AsDouble() - rhs.AsDouble())) < 0,000001;
+            return (std::abs(lhs.AsDouble() - rhs.AsDouble())) < 0.00001;
         }
         return lhs.GetValue() == rhs.GetValue();
     }
