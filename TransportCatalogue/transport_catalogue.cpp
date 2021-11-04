@@ -44,7 +44,7 @@ bool TransportCatalogue::hasStop(std::string_view name) const
 	return nameToStop_.count(name) != 0;
 }
 
-void TransportCatalogue::addStopsDistance(const Stop* stopA, const Stop* stopB, double distance)
+void TransportCatalogue::addStopsDistance(const Stop* stopA, const Stop* stopB, int distance)
 {
 	stopsDistance[std::pair<const Stop*, const Stop*> {stopA, stopB}] = distance;
 }
@@ -117,7 +117,7 @@ const std::unordered_set<domain::Route*>* TransportCatalogue::getRoutesOnStop(co
 	// работает быстро, но указатель может стать невалидным, если в каталог будет добавлена новая информация
 }
 
-double TransportCatalogue::getRealStopsDistance(const Stop* stopA, const Stop* stopB) const
+int TransportCatalogue::getRealStopsDistance(const Stop* stopA, const Stop* stopB) const
 {
 	std::pair<const Stop*, const Stop*> pairAB{ stopA, stopB };
 	if (stopsDistance.count(pairAB) > 0) {

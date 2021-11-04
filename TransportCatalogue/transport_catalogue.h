@@ -43,7 +43,7 @@ public:
 	bool hasStop(std::string_view name) const;
 
 	//сохранить дистанцию между двумя остановками
-	void addStopsDistance(const Stop* stopA, const Stop* stopB, double distance);
+	void addStopsDistance(const Stop* stopA, const Stop* stopB, int distance);
 
 	//получение информации о маршруте
 	const RouteInfo getRouteInfo(const Route* route) const;
@@ -57,7 +57,7 @@ public:
 	// Получить расстояние между остановками. Возвращает реальное расстояние между остановками.
 	//если расстояние не известно возвращает -1. ;
 	//если расстояние от А до А не задано, возвращает 0. ;
-	double getRealStopsDistance(const Stop* stopA, const Stop* stopB) const;
+	int getRealStopsDistance(const Stop* stopA, const Stop* stopB) const;
 		
 	// на данный момент все имеющиеся поля могут сами себя удалить
 	~TransportCatalogue() = default;
@@ -95,8 +95,7 @@ private:
 
 	// словарь. расстояние между остановками. Расстояние от А до Б может быть не равно расстоянию от Б до А.
 	// Также может храниться расстояние от А до А.
-	//todo: change to int. The distance is measured in meters.
-	std::unordered_map<std::pair<const Stop*, const Stop*>, double, TwoStopHasher> stopsDistance;
+	std::unordered_map<std::pair<const Stop*, const Stop*>, int, TwoStopHasher> stopsDistance;
 
 	std::string_view addString(std::string_view str) {
 		allNames.push_back(static_cast<std::string>(str));
