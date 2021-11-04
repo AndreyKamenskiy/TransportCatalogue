@@ -108,20 +108,20 @@ using namespace std;
 
 int main() {
 
-	/*testTransportCatalogue();
+	testTransportCatalogue();
 	setlocale(LC_CTYPE, "Russian");
 	test_json_reader();
 	//todo: добавить тест на некорректные запросы. нет полей, поля неправильного типа и т.п.
 
-	//cout << "all tests passed successfully"s; */
+	//cout << "all tests passed successfully"s; 
 
 	
-	JsonReader jr{cin};
+	/*JsonReader jr{cin};
 	TransportCatalogue tc;
 	jr.add_to_catalogue(tc);
 	RequestHandler rh(tc);
 	json::Document requestJSON = jr.get_responce(rh);
-	json::Print(requestJSON, cout);
+	json::Print(requestJSON, cout);*/
 	
 
 	return 0;

@@ -22,7 +22,7 @@ struct Route {
 struct RouteInfo {
 	int stopsNumber;
 	int uniqueStops;
-	double length;
+	int length;
 	double curvature; //извилистость. отношение фактическиой длины маршрута к кратчайшей (географической) длине
 };
 

@@ -115,6 +115,10 @@ void add_distances(transport_catalogue::TransportCatalogue& tc,
 			toStop = tc.findStop(toStopName);
 		}
 		// добавим дистанцию до остановки
+		if (!distance.IsInt()) {
+			using namespace std::literals::string_literals;
+			throw std::logic_error("Distant to stop are not an int type"s);
+		}
 		tc.addStopsDistance(stop, toStop, distance.AsInt());
 	}
 }
@@ -277,9 +281,7 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 				request_answer.insert({ curvature_key, json::Node(route_info->curvature) });
 				request_answer.insert({ stop_count_key, json::Node(route_info->stopsNumber) });
 				request_answer.insert({ unique_stop_count_key, json::Node(route_info->uniqueStops) });\
-				//todo: не забыть убрать после изменения domain::RouteInfo.length на int
-				int len = static_cast<int>(route_info->length);
-				request_answer.insert({ route_length_key, json::Node(len) });
+				request_answer.insert({ route_length_key, json::Node(route_info->length) });
 			}
 			else {
 				//не нашли такой маршрут

@@ -85,7 +85,7 @@ const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) const {
 	std::unordered_set<std::string_view> unique;
 	//get Length and uniques of the route;
 	//todo:make length int type
-	double length = 0;
+	int length = 0;
 	double geoLength = 0;
 	const Stop* previous = nullptr;
 	for (const Stop* current : route->stops) {
@@ -96,7 +96,7 @@ const RouteInfo TransportCatalogue::getRouteInfo(const Route* route) const {
 		}
 		previous = current;
 	}
-	return { static_cast<int>(route->stops.size()), static_cast<int>(unique.size()), length, length / geoLength };
+	return { static_cast<int>(route->stops.size()), static_cast<int>(unique.size()), length, double(length) / geoLength };
 }
 
 const RouteInfo TransportCatalogue::getRouteInfo(const std::string_view& routeName) const {
