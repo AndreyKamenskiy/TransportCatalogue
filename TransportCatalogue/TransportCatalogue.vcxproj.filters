@@ -87,5 +87,23 @@
     <None Include="output_test3.json">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="s10_final_opentest_1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_1_answer.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_2.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_2_answer.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_3.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_3_answer.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
 </Project>

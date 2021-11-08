@@ -170,6 +170,12 @@
     <None Include="output_test1.json" />
     <None Include="output_test2.json" />
     <None Include="output_test3.json" />
+    <None Include="s10_final_opentest_1.json" />
+    <None Include="s10_final_opentest_1_answer.json" />
+    <None Include="s10_final_opentest_2.json" />
+    <None Include="s10_final_opentest_2_answer.json" />
+    <None Include="s10_final_opentest_3.json" />
+    <None Include="s10_final_opentest_3_answer.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
