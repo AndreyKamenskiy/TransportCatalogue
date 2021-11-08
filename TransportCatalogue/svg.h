@@ -55,7 +55,7 @@ namespace svg {
     // мы сделаем так, что она будет одной на все единицы трансляции,
     // которые подключают этот заголовок.
     // В противном случае каждая единица трансляции будет использовать свою копию этой константы
-    inline const Color NoneColor{ "none"s };
+    inline const Color NoneColor{ "none"};
 
     struct ColorPrinter {
         std::ostream& out;

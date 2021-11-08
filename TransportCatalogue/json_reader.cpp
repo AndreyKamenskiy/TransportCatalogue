@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <string_view>
 #include <algorithm>
@@ -12,9 +13,11 @@ const std::string base_requests = "base_requests"s;
 const std::string stat_requests = "stat_requests"s;
 const std::string route_type = "Bus"s;
 const std::string stop_type = "Stop"s;
+const std::string map_type = "Map"s;
 
 const std::string type_key = "type"s;
 const std::string name_key = "name"s;
+const std::string map_key = "map"s;
 const std::string id_key = "id"s; 
 const std::string error_message_key = "error_message"s;
 const std::string request_id_key = "request_id"s;
@@ -206,17 +209,18 @@ void checking_stat_request_validity(const json::Node& request) {
 	}
 	const json::Dict& map = request.AsMap();
 	checkDictKey(map, id_key, typeid(int));
-	checkDictKey(map, name_key, typeid(std::string));
 	checkDictKey(map, type_key, typeid(std::string));
-	if (map.at(type_key).AsString() != route_type && map.at(type_key).AsString() != stop_type) {
+	std::string s = map.at(type_key).AsString();
+	if (s != route_type && s != stop_type && s != map_type) {
 		throw std::logic_error("Unknown request type"s);
+	}
+	if (s != map_type) {
+		checkDictKey(map, name_key, typeid(std::string));
 	}
 }
 
 json::Document JsonReader::get_responce(const RequestHandler& rh) const
 {
-	//todo: move blocks of code to the functions. Make method smaller.
-
 	using namespace std::literals::string_literals;
 	using namespace json_requests;
 	if (!requests_.GetRoot().IsMap()) {
@@ -232,11 +236,11 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 		// prepare request
 		const json::Dict& request_dict = request.AsMap();
 		int id = request_dict.at(id_key).AsInt();
-		const std::string& name = request_dict.at(name_key).AsString();
 		json::Dict request_answer;
 		request_answer.insert({ request_id_key, json::Node(id) });
 		// ask request
 		if (request_dict.at(type_key) == stop_type) {
+			const std::string& name = request_dict.at(name_key).AsString();
 			try {
 				const std::unordered_set<domain::Route*>* routes_on_stop = rh.GetBusesByStop(name);
 				json::Array routes_array;
@@ -255,8 +259,8 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 				request_answer.insert({ error_message_key, json::Node(not_found_message) });
 			}
 		}
-		else { // можем не проверять на другие виды запросов, т.к. мы их отсекли при проверке валидации
-			//route_type
+		else if (request_dict.at(type_key) == route_type) { 
+			const std::string& name = request_dict.at(name_key).AsString();
 			std::optional<domain::RouteInfo> route_info = rh.GetBusStat(name);
 			if (route_info.has_value()) {
 				request_answer.insert({ curvature_key, json::Node(route_info->curvature) });
@@ -268,6 +272,13 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 				//не нашли такой маршрут
 				request_answer.insert({ error_message_key, json::Node(not_found_message) });
 			}
+		}
+		else {
+			//map_type
+			svg::Document svg = rh.RenderMap();
+			std::ostringstream oss;
+			svg.Render(oss);
+			request_answer.insert({ map_key, json::Node(oss.str()) });
 		}
 		// add json to the document
 		json_answers.push_back(request_answer);

@@ -8,6 +8,7 @@
 #include "json.h"
 #include "json_reader.h"
 #include "request_handler.h"
+#include "map_renderer.h"
 
 using namespace transport_catalogue;
 using namespace domain;
@@ -119,7 +120,8 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	JsonReader jr{ strm };
 	TransportCatalogue tc;
 	jr.add_to_catalogue(tc);
-	RequestHandler rh(tc);
+	renderer::MapRenderer renderer;
+	RequestHandler rh(tc, renderer);
 	json::Document requestJSON = jr.get_responce(rh);
 	std::string simpleResponse = loadFile(answerFile);
 	std::stringstream str1{ simpleResponse };
@@ -140,6 +142,10 @@ void test_json_reader() {
 	test_json_reader1();
 }
 
+void render_tests() {
+	TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
+}
+
 using namespace std;
 
 int main() {
@@ -147,6 +153,8 @@ int main() {
 	testTransportCatalogue();
 	setlocale(LC_CTYPE, "Russian");
 	test_json_reader();
+	render_tests();
+
 	//todo: добавить тест на некорректные запросы. нет полей, поля неправильного типа и т.п.
 
 	//cout << "all tests passed successfully"s; 

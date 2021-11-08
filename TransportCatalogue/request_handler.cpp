@@ -1,8 +1,8 @@
 #include <stdexcept>
 #include "request_handler.h"
 
-RequestHandler::RequestHandler(const transport_catalogue::TransportCatalogue& db)
-	: db_(db)/*,  renderer_(renderer)*/
+RequestHandler::RequestHandler(const transport_catalogue::TransportCatalogue& db, const renderer::MapRenderer& renderer)
+	: db_(db),  renderer_(renderer)
 {
 }
 
@@ -19,6 +19,11 @@ std::optional<domain::RouteInfo> RequestHandler::GetBusStat(const std::string_vi
 const std::unordered_set<domain::Route*>* RequestHandler::GetBusesByStop(const std::string_view& stop_name) const
 {
 	return  db_.getRoutesOnStop(db_.findStop(stop_name));
+}
+
+svg::Document RequestHandler::RenderMap() const
+{
+	return svg::Document();
 }
 
 
