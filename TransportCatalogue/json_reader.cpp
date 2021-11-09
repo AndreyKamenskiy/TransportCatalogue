@@ -34,6 +34,22 @@ const std::string stop_count_key = "stop_count"s;
 const std::string unique_stop_count_key = "unique_stop_count"s;
 
 const std::string not_found_message = "not found"s;
+
+//for renderer
+const std::string render_settings = "render_settings"s;
+const std::string render_width = "width"s;
+const std::string render_height = "height"s;
+const std::string render_padding = "padding"s;
+const std::string render_line_width = "line_width"s;
+const std::string render_stop_radius = "stop_radius"s;
+const std::string render_bus_label_font_size = "bus_label_font_size"s;
+const std::string render_bus_label_offset = "bus_label_offset"s;
+const std::string render_stop_label_font_size = "stop_label_font_size"s;
+const std::string render_stop_label_offset = "stop_label_offset"s;
+const std::string render_underlayer_color = "underlayer_color"s;
+const std::string render_underlayer_width = "underlayer_width"s;
+const std::string render_color_palette = "color_palette"s;
+
 }
 
 JsonReader::JsonReader(std::istream& input)
@@ -221,6 +237,7 @@ void checking_stat_request_validity(const json::Node& request) {
 
 json::Document JsonReader::get_responce(const RequestHandler& rh) const
 {
+	//TODO: make own function for every stat request
 	using namespace std::literals::string_literals;
 	using namespace json_requests;
 	if (!requests_.GetRoot().IsMap()) {
@@ -285,3 +302,111 @@ json::Document JsonReader::get_responce(const RequestHandler& rh) const
 	}
 	return json::Document(json::Node(std::move(json_answers)));
 }
+
+
+/*
+Цвет можно указать:
+1. в виде строки, например, "red" или "black";
+2. в массиве из трёх целых чисел диапазона [0, 255]. Они определяют r, g и b компоненты цвета в формате 
+svg::Rgb. Цвет [255, 16, 12] нужно вывести как rgb(255, 16, 12);
+3. в массиве из четырёх элементов: три целых числа в диапазоне от [0, 255] и одно вещественное число 
+в диапазоне от [0.0, 1.0]. Они задают составляющие red, green, blue и opacity цвета формата svg::Rgba. 
+Цвет, заданный как [255, 200, 23, 0.85], должен быть выведен как rgba(255, 200, 23, 0.85).
+*/
+svg::Color node_to_color(const json::Node& node) {
+	using namespace std::literals::string_literals;
+	svg::Color color;
+	if (node.IsString()) {
+		return svg::Color{ node.AsString() };
+	}
+	else if ((node.IsArray())) {
+		const json::Array& color_array = node.AsArray();
+		if (color_array.size() == 3 || color_array.size() == 4) {
+			//todo: need to write a node type check function
+			if (!color_array[0].IsInt() || !color_array[1].IsInt() || !color_array[0].IsInt()) {
+				throw std::logic_error("The first three elements of the color array must be of type int"s);
+			}
+			uint8_t r = color_array[0].AsInt();
+			uint8_t g = color_array[1].AsInt();
+			uint8_t b = color_array[2].AsInt();
+
+			if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+				throw std::logic_error("The first three elements of the color array must be in the range [0..255]"s);
+			}
+			if (color_array.size() == 3) {
+				return svg::Color(svg::Rgb{ r,g,b });
+			}
+			else {
+				if (!color_array[3].IsDouble()) {
+					throw std::logic_error("The fourth element of the color array must be of type double"s);
+				}
+				return svg::Color(svg::Rgba(r, g, b, color_array[3].AsDouble()));
+			}
+		}
+		else {
+			throw std::logic_error("Color array must consist of 3 or 4 elements"s);
+		}
+	}
+	else
+	{
+		throw std::logic_error("Unknown type of color node"s);
+	}
+}
+
+renderer::RenderOptions JsonReader::get_render_options()
+{
+	using namespace std::literals::string_literals;
+	using namespace json_requests;
+	if (!requests_.GetRoot().IsMap()) {
+		throw std::logic_error("Root node is not Dict type"s);
+	}
+	const json::Dict& map = requests_.GetRoot().AsMap();
+	if (!map.count(render_settings)) {
+		//case if there is no render settings in the json
+		return {};
+	}
+	//checkDictKey(map, render_settings, typeid(json::Dict));
+	const json::Dict& json_options = map.at(render_settings).AsMap();
+	checkDictKey(json_options, render_width, typeid(double));
+	checkDictKey(json_options, render_height, typeid(double));
+	checkDictKey(json_options, render_padding, typeid(double));
+	checkDictKey(json_options, render_line_width, typeid(double));
+	checkDictKey(json_options, render_stop_radius, typeid(double));
+	checkDictKey(json_options, render_bus_label_font_size, typeid(int));
+	checkDictKey(json_options, render_bus_label_offset, typeid(json::Array));
+	const json::Array& bus_offset = json_options.at(render_bus_label_offset).AsArray();
+	const json::Array& stop_offset = json_options.at(render_stop_label_offset).AsArray();
+	if (bus_offset.size() != 2 || stop_offset.size() != 2) {
+		throw std::logic_error("label_offset need exactly 2 elements"s);
+	}
+	if (!bus_offset[0].IsDouble() || !bus_offset[1].IsDouble() 
+		|| !stop_offset[0].IsDouble() || !stop_offset[1].IsDouble()) {
+		throw std::logic_error("offset must be double type"s);
+	}
+	checkDictKey(json_options, render_stop_label_font_size, typeid(int));
+	checkDictKey(json_options, render_underlayer_width, typeid(double));
+	if (json_options.count(render_underlayer_color) == 0) {
+		throw std::logic_error("There is no "s + render_underlayer_color + " key in the request"s);
+	}
+	checkDictKey(json_options, render_color_palette, typeid(json::Array));
+
+	renderer::RenderOptions options;
+	options.width = json_options.at(render_width).AsDouble();
+	options.height = json_options.at(render_height).AsDouble();
+	options.padding = json_options.at(render_padding).AsDouble();
+	options.line_width = json_options.at(render_line_width).AsDouble();
+	options.stop_radius = json_options.at(render_stop_radius).AsDouble();
+	options.bus_label_font_size = json_options.at(render_bus_label_font_size).AsInt();
+	options.bus_label_offset.x = bus_offset[0].AsDouble();
+	options.bus_label_offset.y = bus_offset[1].AsDouble();
+	options.stop_label_offset.x = stop_offset[0].AsDouble();
+	options.stop_label_offset.y = stop_offset[1].AsDouble();
+	options.stop_label_font_size = json_options.at(render_stop_label_font_size).AsInt();
+	options.underlayer_width = json_options.at(render_underlayer_width).AsDouble();
+	options.underlayer_color = node_to_color(json_options.at(render_underlayer_color));
+	for (const json::Node& current_color : json_options.at(render_color_palette).AsArray()) {
+		options.color_palette.push_back(node_to_color(current_color));
+	}
+	return options;
+}
+

@@ -120,7 +120,7 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	JsonReader jr{ strm };
 	TransportCatalogue tc;
 	jr.add_to_catalogue(tc);
-	renderer::MapRenderer renderer;
+	renderer::MapRenderer renderer(jr.get_render_options());
 	RequestHandler rh(tc, renderer);
 	json::Document requestJSON = jr.get_responce(rh);
 	std::string simpleResponse = loadFile(answerFile);
@@ -142,7 +142,55 @@ void test_json_reader() {
 	test_json_reader1();
 }
 
+inline const double EPSILON = 1e-6;
+bool IsZero(double value) {
+	return std::abs(value) < EPSILON;
+}
+
+bool operator==(const svg::Rgb& lhs, const svg::Rgb& rhs){
+	return lhs.red == rhs.red && lhs.green == rhs.green && lhs.blue == rhs.blue;
+}
+
+bool operator==(const svg::Rgba& lhs, const svg::Rgba& rhs) {
+	return lhs.red == rhs.red && lhs.green == rhs.green 
+		&& lhs.blue == rhs.blue && IsZero(lhs.opacity - rhs.opacity);
+}
+
+void test_render_options() {
+	using namespace std::literals::string_literals;
+	std::string simpleTest = loadFile("s10_final_opentest_1.json"s);
+	std::stringstream strm{ simpleTest };
+	JsonReader jr{ strm };
+	renderer::RenderOptions ops{ jr.get_render_options() };
+	assert(IsZero( ops.width - 89298.28369209476));
+	assert(IsZero(ops.height - 58011.29248202205));
+	assert(IsZero(ops.padding - 22325.567226490493));
+	assert(IsZero(ops.stop_radius - 21462.68635533567));
+	assert(IsZero(ops.line_width - 38727.57356370373));
+	assert(ops.stop_label_font_size == 86988);
+	assert(IsZero(ops.stop_label_offset.x  + 23192.03299796056));
+	assert(IsZero(ops.stop_label_offset.y - 92100.21839665441));
+	assert(std::get<std::string>(ops.underlayer_color) == "coral"s);
+	assert(IsZero(ops.underlayer_width - 34006.680510317055));
+	assert(ops.bus_label_font_size == 78497);
+	assert(IsZero(ops.bus_label_offset.x - 59718.916265509615));
+	assert(IsZero(ops.bus_label_offset.y - 15913.541281271406));
+	using namespace svg;
+
+	assert(std::get<Rgba>(ops.color_palette[0]) == Rgba( 195, 60, 81, 0.6244132141059138 ));
+	assert(std::get<Rgb>(ops.color_palette[1]) == Rgb ( 2, 81, 213 ));
+	assert(std::get<Rgba>(ops.color_palette[2]) == Rgba( 81, 152, 19, 0.6834377639654173 ));
+	assert(std::get<Rgba>(ops.color_palette[3]) == Rgba( 94, 70, 16, 0.7604371566734329 ));
+	assert(std::get<Rgb>(ops.color_palette[4]) == Rgb( 191, 220, 104 ));
+	assert(std::get<std::string>(ops.color_palette[5]) == "brown"s);
+}
+
+
 void render_tests() {
+	test_render_options();
+
+
+
 	TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
 }
 
@@ -154,6 +202,8 @@ int main() {
 	setlocale(LC_CTYPE, "Russian");
 	test_json_reader();
 	render_tests();
+
+
 
 	//todo: добавить тест на некорректные запросы. нет полей, поля неправильного типа и т.п.
 
