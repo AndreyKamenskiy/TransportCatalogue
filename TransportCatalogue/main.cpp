@@ -142,11 +142,6 @@ void test_json_reader() {
 	test_json_reader1();
 }
 
-inline const double EPSILON = 1e-6;
-bool IsZero(double value) {
-	return std::abs(value) < EPSILON;
-}
-
 bool operator==(const svg::Rgb& lhs, const svg::Rgb& rhs){
 	return lhs.red == rhs.red && lhs.green == rhs.green && lhs.blue == rhs.blue;
 }
@@ -185,13 +180,40 @@ void test_render_options() {
 	assert(std::get<std::string>(ops.color_palette[5]) == "brown"s);
 }
 
+void test_layer_by_layer_render() {
+	using namespace std::literals::string_literals;
+	std::string simpleTest = loadFile("input_render_test1.json"s);
+	std::stringstream strm{ simpleTest };
+	JsonReader jr{ strm };
+	TransportCatalogue tc;
+	jr.add_to_catalogue(tc);
+	renderer::MapRenderer renderer{ jr.get_render_options() };
+	RequestHandler rh(tc, renderer);
+	json::Document requestJSON = jr.get_responce(rh);
+	auto answers = requestJSON.GetRoot().AsArray();
+	for (auto answer : answers) {
+		const auto& dict = answer.AsMap();
+		if (dict.count("map"s) == 0) {
+			continue;
+		}
+		std::string svgStr = dict.at("map"s).AsString();
+		std::cout << svgStr << std::endl;
+
+	}
+
+
+
+
+
+
+}
 
 void render_tests() {
 	test_render_options();
+	test_layer_by_layer_render();
 
 
-
-	TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
+	//TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
 }
 
 using namespace std;

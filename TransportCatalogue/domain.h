@@ -28,3 +28,6 @@ struct RouteInfo {
 
 
 } // namespace domain
+
+//функция сравнивает два double. Здесь она потому что нужно, чтобы она была
+bool IsZero(double value); 

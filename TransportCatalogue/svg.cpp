@@ -45,7 +45,7 @@ namespace svg {
         for (const std::unique_ptr<Object>& curr : objects_) {
             curr->Render(ctx);
         }
-        std::cout << "</svg>"sv << std::endl;
+        out << "</svg>"sv << std::endl;
     }
 
     // ---------- Polyline ------------------
@@ -70,7 +70,7 @@ namespace svg {
             out << points_[i].x << ',' << points_[i].y;
 
         }
-        out << "\" "sv;
+        out << "\""sv;
         RenderAttrs(out);
         out << "/>"sv;
     }

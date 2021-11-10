@@ -1,6 +1,7 @@
 ﻿#include "transport_catalogue.h"
 #include <stdexcept>
 #include <unordered_set>
+#include <vector>
 
 using namespace transport_catalogue;
 
@@ -133,4 +134,13 @@ int TransportCatalogue::getRealStopsDistance(const Stop* stopA, const Stop* stop
 		}
 	}
 	return -1; // такого быть не должно!!!
+}
+
+std::vector<const Route*> transport_catalogue::TransportCatalogue::getAllRoutes() const
+{
+	std::vector<const Route*> routes;
+	for (const std::pair<const std::string_view, Route*>& currentRoute : nameToRoute_) {
+		routes.push_back(currentRoute.second);
+	}
+	return routes;
 }

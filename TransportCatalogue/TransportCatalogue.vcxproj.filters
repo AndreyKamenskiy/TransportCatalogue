@@ -105,5 +105,11 @@
     <None Include="s10_final_opentest_3_answer.json">
       <Filter>Файлы ресурсов</Filter>
     </None>
+    <None Include="input_render_test1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="output_render_test1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
 </Project>
