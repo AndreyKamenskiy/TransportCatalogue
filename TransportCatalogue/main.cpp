@@ -75,7 +75,6 @@ void testDistance() {
 	const Stop* s1p = tc.findStop(s1);
 	const Stop* s2p = tc.findStop(s2);
 	const Stop* s3p = tc.findStop(s3);
-	const Stop* s4p = tc.findStop(s3);
 	tc.addStopsDistance(s1p, s2p, 100);
 	tc.addStopsDistance(s2p, s1p, 400);
 	tc.addStopsDistance(s2p, s2p, 500);
@@ -126,8 +125,8 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	std::string simpleResponse = loadFile(answerFile);
 	std::stringstream str1{ simpleResponse };
 	json::Document outJSON = json::Load(str1);
-	json::Print(requestJSON, std::cout);
-	json::Print(outJSON, std::cout);
+	//json::Print(requestJSON, std::cout);
+	//json::Print(outJSON, std::cout);
 	assert(requestJSON == outJSON);
 }
 
@@ -201,44 +200,34 @@ void test_layer_by_layer_render() {
 
 	}
 
-
-
-
-
-
 }
 
 void render_tests() {
 	test_render_options();
-	test_layer_by_layer_render();
+	//test_layer_by_layer_render();
+	TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
+	//TestCatalogueWithJsonFiles("s10_final_opentest_2.json", "s10_final_opentest_2_answer.json");
 
-
-	//TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
+	//TODO: написать качественный тест для svg
+	TestCatalogueWithJsonFiles("s10_final_opentest_3.json", "s10_final_opentest_3_answer.json");
 }
 
 using namespace std;
 
 int main() {
 
-	testTransportCatalogue();
+	/*testTransportCatalogue();
 	setlocale(LC_CTYPE, "Russian");
 	test_json_reader();
-	render_tests();
+	render_tests();*/
 
-
-
-	//todo: добавить тест на некорректные запросы. нет полей, поля неправильного типа и т.п.
-
-	//cout << "all tests passed successfully"s; 
-
-	
-	/*JsonReader jr{cin};
+	JsonReader jr{ cin };
 	TransportCatalogue tc;
 	jr.add_to_catalogue(tc);
-	RequestHandler rh(tc);
+	renderer::MapRenderer renderer(jr.get_render_options());
+	RequestHandler rh(tc, renderer);
 	json::Document requestJSON = jr.get_responce(rh);
-	json::Print(requestJSON, cout);*/
-	
+	json::Print(requestJSON, std::cout);
 
 	return 0;
 }

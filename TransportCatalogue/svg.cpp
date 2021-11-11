@@ -45,7 +45,7 @@ namespace svg {
         for (const std::unique_ptr<Object>& curr : objects_) {
             curr->Render(ctx);
         }
-        out << "</svg>"sv << std::endl;
+        out << "</svg>"sv;
     }
 
     // ---------- Polyline ------------------

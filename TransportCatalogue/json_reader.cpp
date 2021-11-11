@@ -330,9 +330,6 @@ svg::Color node_to_color(const json::Node& node) {
 			uint8_t g = color_array[1].AsInt();
 			uint8_t b = color_array[2].AsInt();
 
-			if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
-				throw std::logic_error("The first three elements of the color array must be in the range [0..255]"s);
-			}
 			if (color_array.size() == 3) {
 				return svg::Color(svg::Rgb{ r,g,b });
 			}
@@ -409,4 +406,3 @@ renderer::RenderOptions JsonReader::get_render_options()
 	}
 	return options;
 }
-
