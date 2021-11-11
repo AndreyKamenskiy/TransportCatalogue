@@ -115,6 +115,8 @@ public:
     //Создает надписи маршрут.
     void RenderRouteLables(svg::Document& doc, const domain::Route* route, size_t count);
 
+    //Создает надписи маршрут.
+    void RenderStopPoint(svg::Document& doc, const domain::Stop* stop);
 
 private:
 	RenderOptions options_;

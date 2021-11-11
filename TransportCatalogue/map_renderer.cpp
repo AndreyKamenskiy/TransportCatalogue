@@ -84,6 +84,15 @@ void renderer::MapRenderer::RenderRouteLables(svg::Document& doc, const domain::
 		doc.Add(background);
 		doc.Add(text);
 	}
+}
 
+void renderer::MapRenderer::RenderStopPoint(svg::Document& doc, const domain::Stop* stop)
+{
+	using namespace std::string_literals;
+	svg::Circle circle;
 
+	circle.SetCenter(projector_(stop->coordinates))
+		.SetFillColor("white"s)
+		.SetRadius(options_.stop_radius);
+	doc.Add(circle);
 }

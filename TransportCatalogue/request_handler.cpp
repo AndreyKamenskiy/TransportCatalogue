@@ -58,7 +58,6 @@ svg::Document RequestHandler::RenderMap() const
 		[](const Route* a, const Route* b) { return a->name < b->name; });
 	std::sort(stopsToRender.begin(), stopsToRender.end(),
 		[](const Stop* a, const Stop* b) { return a->name < b->name; });
-	
 
 	// 1й слой. ломанные линии маршрутов.
 	size_t count = 0;
@@ -76,7 +75,10 @@ svg::Document RequestHandler::RenderMap() const
 	}
 
 	// 3й слой. символы остановок.
-		// выводим названия остановок из упорядоченного сета
+	for (const Stop* stop : stopsToRender) {
+		// выводим названия остановок из упорядоченного массива
+		renderer_.RenderStopPoint(doc, stop);
+	}
 	// 4й слой. названия остановок.
 		// выводим названия остановок из упорядоченного сета
 
