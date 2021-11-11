@@ -66,7 +66,7 @@ void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string
 		stops.push_back(stopPtr);
 	}
 	if (stopNames.size() > 0) {
-		firstFinalStop = stops.back();
+		firstFinalStop = stops[0];
 	}
 	if (!isCircle && stopNames.size() > 0) {
 		secondFinalStop = stops.back();

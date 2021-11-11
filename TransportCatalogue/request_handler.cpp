@@ -68,13 +68,13 @@ svg::Document RequestHandler::RenderMap() const
 		doc.Add(renderer_.RenderRoute(route, count++));
 	}
 	// 2й слой. названи€ маршрутов.
+	count = 0;
 	for (const Route* route : routesToRender) {
 		//дл€ каждого отсортированного маршрута
 		// ƒобавим название маршрута, если не кольцевой, то добавим 2 названи€.
-
-
-
+		renderer_.RenderRouteLables(doc, route, count++);
 	}
+
 	// 3й слой. символы остановок.
 		// выводим названи€ остановок из упор€доченного сета
 	// 4й слой. названи€ остановок.

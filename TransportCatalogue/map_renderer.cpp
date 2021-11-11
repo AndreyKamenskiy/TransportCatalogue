@@ -23,7 +23,67 @@ svg::Polyline renderer::MapRenderer::RenderRoute(const domain::Route* route, siz
 	polyline.SetFillColor(svg::NoneColor)
 		.SetStrokeColor(options_.color_palette[colorIndex])
 		.SetStrokeWidth(options_.line_width)
-		.SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+		.SetStrokeLineCap( svg::StrokeLineCap::ROUND)
 		.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
 	return polyline;
+}
+
+void renderer::MapRenderer::RenderRouteLables(svg::Document& doc, const domain::Route* route, size_t count)
+{
+	using namespace std::string_literals;
+	const std::string FONT_FAMILY = "Verdana"s;
+	const std::string FONT_WEIGHT = "bold"s;
+	
+	svg::Text text;
+	svg::Text background;
+	size_t colorIndex = count % options_.color_palette.size();
+
+	auto basePoint = projector_(route->firstFinalStop.value()->coordinates);
+	auto offset = options_.bus_label_offset;
+	auto name = static_cast<std::string>(route->name);
+	background.SetPosition(basePoint)
+		.SetOffset(offset)
+		.SetFontSize(options_.bus_label_font_size)
+		.SetFontFamily(FONT_FAMILY)
+		.SetFontWeight(FONT_WEIGHT)
+		.SetData(name)
+		.SetFillColor(options_.underlayer_color)
+		.SetStrokeColor(options_.underlayer_color)
+		.SetStrokeWidth(options_.underlayer_width)
+		.SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+		.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+	text.SetPosition(basePoint)
+		.SetOffset(offset)
+		.SetFontSize(options_.bus_label_font_size)
+		.SetFontFamily(FONT_FAMILY)
+		.SetFontWeight(FONT_WEIGHT)
+		.SetData(name)
+		.SetFillColor(options_.color_palette[colorIndex]);
+	doc.Add(background);
+	doc.Add(text);
+	if (route->secondFinalStop.has_value()) {
+		basePoint = projector_(route->secondFinalStop.value()->coordinates);
+		background.SetPosition(basePoint)
+			.SetOffset(offset)
+			.SetFontSize(options_.bus_label_font_size)
+			.SetFontFamily(FONT_FAMILY)
+			.SetFontWeight(FONT_WEIGHT)
+			.SetData(name)
+			.SetFillColor(options_.underlayer_color)
+			.SetStrokeColor(options_.underlayer_color)
+			.SetStrokeWidth(options_.underlayer_width)
+			.SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+			.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+		text.SetPosition(basePoint)
+			.SetOffset(offset)
+			.SetFontSize(options_.bus_label_font_size)
+			.SetFontFamily(FONT_FAMILY)
+			.SetFontWeight(FONT_WEIGHT)
+			.SetData(name)
+			.SetFillColor(options_.color_palette[colorIndex]);
+		doc.Add(background);
+		doc.Add(text);
+	}
+
+
 }
