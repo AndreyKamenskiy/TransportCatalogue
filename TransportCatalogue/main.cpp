@@ -38,14 +38,14 @@ void TCTest1() {
 	}
 
 	std::string busName = "bus1";
-	tc.addRoute(busName, stops);
+	tc.addRoute(busName, stops, true);
 	const Route* rt = tc.findRoute("bus1");
 	assert(rt->stops[0] == tc.findStop(stops[0]));
 
 	try {
 		stops.push_back("stop3"s);
 		std::string busName2 = "bus2"s;
-		tc.addRoute(busName2, stops);
+		tc.addRoute(busName2, stops, true);
 		assert(false);
 	}
 	catch (std::invalid_argument&) {

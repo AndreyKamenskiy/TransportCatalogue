@@ -1,6 +1,7 @@
 #pragma once
 #include <string_view>
 #include <vector>
+#include <optional>
 #include "geo.h"
 
 namespace domain {
@@ -16,6 +17,8 @@ struct Stop {
 struct Route {
 	std::string_view name;
 	std::vector<const Stop*> stops;
+	std::optional<const Stop*> firstFinalStop;
+	std::optional<const Stop*> secondFinalStop;
 };
 
 //Статистическая информация о маршруте

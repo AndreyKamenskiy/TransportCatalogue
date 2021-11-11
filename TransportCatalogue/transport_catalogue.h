@@ -20,7 +20,7 @@ class TransportCatalogue {
 public:
 
 	// добавление маршрута в базу
-	void addRoute(std::string_view name, std::vector<std::string_view>& stops);
+	void addRoute(std::string_view name, std::vector<std::string_view>& stops, bool isCircle);
 
 	//добавление остановки в базу
 	void addStop(std::string_view name, Coordinates coordinates);
@@ -89,8 +89,6 @@ private:
 	class TwoStopHasher {
 	public:
 		size_t operator()(const std::pair<const Stop*, const Stop*> stops) const {
-			/*TODO: modify like here https ://stackoverflow.com/questions/919612/mapping-two-integers-to-one-in-a-unique-and-deterministic-way
-			hash(a, b) = (a + b) * (a + b + 1 ) / 2 + b; */
 			std::hash<const void*> phasher; // хэшер для указателя.
 			size_t a = phasher(stops.first);
 			size_t b = phasher(stops.second);

@@ -64,12 +64,17 @@ svg::Document RequestHandler::RenderMap() const
 	size_t count = 0;
 	for (const Route* route : routesToRender) {
 		//дл€ каждого отсортированного маршрута
+		// выводим ломанную линию renderer_ add_route_line
 		doc.Add(renderer_.RenderRoute(route, count++));
 	}
-			// выводим ломанную линию renderer_ add_route_line
 	// 2й слой. названи€ маршрутов.
+	for (const Route* route : routesToRender) {
 		//дл€ каждого отсортированного маршрута
-			// ƒобавим название маршрута, если не кольцевой, то добавим 2 названи€.
+		// ƒобавим название маршрута, если не кольцевой, то добавим 2 названи€.
+
+
+
+	}
 	// 3й слой. символы остановок.
 		// выводим названи€ остановок из упор€доченного сета
 	// 4й слой. названи€ остановок.

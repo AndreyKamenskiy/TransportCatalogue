@@ -165,13 +165,13 @@ void add_routes(transport_catalogue::TransportCatalogue& tc,
 			}
 			stopNames.push_back(stop.AsString());
 		}
-		if (!map.at(circle_route_key).AsBool()) {
+		/*if (!map.at(circle_route_key).AsBool()) {
 			//если маршрут не цикличный, то мы должны добавить обратный ход
 			for (int i = stopNames.size() - 2; i >= 0; --i) {
 				stopNames.push_back(stopNames[i]);
 			}
-		}
-		tc.addRoute(map.at(name_key).AsString(), stopNames);
+		}*/
+		tc.addRoute(map.at(name_key).AsString(), stopNames, map.at(circle_route_key).AsBool());
 	}
 }
 

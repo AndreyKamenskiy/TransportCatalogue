@@ -1,7 +1,8 @@
-﻿#include "transport_catalogue.h"
-#include <stdexcept>
+﻿#include <stdexcept>
 #include <unordered_set>
 #include <vector>
+#include <optional>
+#include "transport_catalogue.h"
 
 using namespace transport_catalogue;
 
@@ -51,9 +52,11 @@ void TransportCatalogue::addStopsDistance(const Stop* stopA, const Stop* stopB, 
 }
 
 // добавление маршрута в базу
-void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string_view>& stopNames) {
+void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string_view>& stopNames, bool isCircle) {
 	std::vector<const Stop*> stops;
 	stops.reserve(stopNames.size());
+	std::optional<const Stop*> firstFinalStop;
+	std::optional<const Stop*> secondFinalStop;
 	for (auto& stop : stopNames) {
 		const Stop* stopPtr = findStop(stop);
 		if (!stopPtr) {
@@ -62,8 +65,18 @@ void TransportCatalogue::addRoute(std::string_view name, std::vector<std::string
 		}
 		stops.push_back(stopPtr);
 	}
+	if (stopNames.size() > 0) {
+		firstFinalStop = stops.back();
+	}
+	if (!isCircle && stopNames.size() > 0) {
+		secondFinalStop = stops.back();
+		//если маршрут не цикличный, то мы должны добавить обратный ход
+		for (int i = stops.size() - 2; i >= 0; --i) {
+			stops.push_back(stops[i]);
+		}
+	}
 	std::string_view nameSV = addString(name);
-	routes_.push_back({ nameSV, stops });
+	routes_.push_back({ nameSV, stops, firstFinalStop, secondFinalStop });
 	nameToRoute_[nameSV] = &routes_.back();
 	for (auto stopPtr : stops) {
 		stopToRoutes_[stopPtr].insert(&routes_.back());
