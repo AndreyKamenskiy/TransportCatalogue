@@ -12,7 +12,7 @@ void renderer::MapRenderer::InitProjector(const std::vector<domain::Coordinates>
 		options_.width, options_.height, options_.padding};
 }
 
-svg::Polyline renderer::MapRenderer::RenderRoute(const domain::Route* route, size_t count)
+void renderer::MapRenderer::RenderRoute(svg::Document& doc, const domain::Route* route, size_t count)
 {
 	svg::Polyline polyline;
 	for (const domain::Stop* currentStop: route->stops) {
@@ -25,7 +25,7 @@ svg::Polyline renderer::MapRenderer::RenderRoute(const domain::Route* route, siz
 		.SetStrokeWidth(options_.line_width)
 		.SetStrokeLineCap( svg::StrokeLineCap::ROUND)
 		.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
-	return polyline;
+	doc.Add(polyline);
 }
 
 void renderer::MapRenderer::RenderRouteLables(svg::Document& doc, const domain::Route* route, size_t count)

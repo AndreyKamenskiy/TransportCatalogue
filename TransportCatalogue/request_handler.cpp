@@ -65,7 +65,7 @@ svg::Document RequestHandler::RenderMap() const
 	for (const Route* route : routesToRender) {
 		//дл€ каждого отсортированного маршрута
 		// выводим ломанную линию renderer_ add_route_line
-		doc.Add(renderer_.RenderRoute(route, count++));
+		renderer_.RenderRoute(doc, route, count++);
 	}
 	// 2й слой. названи€ маршрутов.
 	count = 0;

@@ -110,10 +110,10 @@ public:
     void InitProjector(const std::vector<domain::Coordinates>& points);
 
     //Создает полилинию рисующую маршрут.
-    svg::Polyline RenderRoute(const domain::Route* route, size_t count);
+    void RenderRoute(svg::Document& doc, const domain::Route* route, size_t count);
 
     //Создает надписи маршрут.
-    void RenderRouteLables(svg::Document& doc,const domain::Route* route, size_t count);
+    void RenderRouteLables(svg::Document& doc, const domain::Route* route, size_t count);
 
 
 private:
