@@ -96,3 +96,33 @@ void renderer::MapRenderer::RenderStopPoint(svg::Document& doc, const domain::St
 		.SetRadius(options_.stop_radius);
 	doc.Add(circle);
 }
+
+void renderer::MapRenderer::RenderStopLable(svg::Document& doc, const domain::Stop* stop)
+{
+	using namespace std::string_literals;
+	const std::string FONT_FAMILY = "Verdana"s;
+	const svg::Color TEXT_FILL_COLOR{ "black"s };
+	svg::Text text;
+	svg::Text background;
+	auto basePoint = projector_(stop->coordinates);
+	auto offset = options_.stop_label_offset;
+	auto name = static_cast<std::string>(stop->name);
+	background.SetPosition(basePoint)
+		.SetOffset(offset)
+		.SetFontSize(options_.stop_label_font_size)
+		.SetFontFamily(FONT_FAMILY)
+		.SetData(name)
+		.SetFillColor(options_.underlayer_color)
+		.SetStrokeColor(options_.underlayer_color)
+		.SetStrokeWidth(options_.underlayer_width)
+		.SetStrokeLineCap(svg::StrokeLineCap::ROUND)
+		.SetStrokeLineJoin(svg::StrokeLineJoin::ROUND);
+	text.SetPosition(basePoint)
+		.SetOffset(offset)
+		.SetFontSize(options_.stop_label_font_size)
+		.SetFontFamily(FONT_FAMILY)
+		.SetData(name)
+		.SetFillColor(TEXT_FILL_COLOR);
+	doc.Add(background);
+	doc.Add(text);
+}
