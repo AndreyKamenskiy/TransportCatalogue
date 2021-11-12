@@ -61,7 +61,7 @@ void renderer::MapRenderer::RenderRouteLables(svg::Document& doc, const domain::
 		.SetFillColor(options_.color_palette[colorIndex]);
 	doc.Add(background);
 	doc.Add(text);
-	if (route->secondFinalStop.has_value()) {
+	if (route->secondFinalStop.has_value() && route->firstFinalStop != route->secondFinalStop) {
 		basePoint = projector_(route->secondFinalStop.value()->coordinates);
 		background.SetPosition(basePoint)
 			.SetOffset(offset)

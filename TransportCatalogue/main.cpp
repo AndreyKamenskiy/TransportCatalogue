@@ -127,6 +127,7 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	json::Document outJSON = json::Load(str1);
 	//json::Print(requestJSON, std::cout);
 	//json::Print(outJSON, std::cout);
+	//assert(requestJSON == outJSON);
 	if (requestJSON == outJSON) {
 		return;
 	}
@@ -137,18 +138,78 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 		if (requerstArray[i] == outArray[i]) {
 			continue;
 		}
-		json::Document currentIn(requerstArray[i]);
-		json::Document currentOut(outArray[i]);
-		json::Print(currentIn, std::cout);
-		json::Print(currentOut, std::cout);
+		{
+			json::Document currentIn(requerstArray[i]);
+			json::Document currentOut(outArray[i]);
+			std::stringstream ssin;
+			std::stringstream ssout;
+			json::Print(currentIn, ssin);
+			json::Print(currentOut, ssout);
+			if (ssin.str() == ssout.str()) {
+				continue;
+			}
 
-		std::string s;
-		std::cin >> s;
+			if (requerstArray[i].AsMap().count("map") == 0) {
+				json::Print(currentIn, std::cout);
+				json::Print(currentOut, std::cout);
+				std::string s;
+				std::cin >> s;
+				continue; // пропустим все несовпадения карт
+			}
+		}
+		//svg checking
+		std::stringstream ssin { requerstArray[i].AsMap().at("map").AsString() };
+		std::stringstream ssout{ outArray[i].AsMap().at("map").AsString() };
+		//сравним построчно
+		std::string strin;
+		std::string strout;
+		//
+		std::ofstream infile;
+		std::ofstream outfile;
+		infile.open("in.svg"s);
+		outfile.open("out.svg"s);
+
+		while (std::getline(ssin, strin) && std::getline(ssout, strout)) {
+			infile << strin << "\n";
+			outfile << strout << "\n";
+			if (strin == strout) {
+				//std::cout << strout << "\n";
+				continue;
+			}
+			std::cout << strout << "\n";
+			std::cout << strin << "\n";
+
+			//std::string s;
+			//std::cin >> s;
+		}
+
+		infile.close();
+		outfile.close();
+		
+
+
 	}
 	
 
 }
 
+
+void save_SVG_from_JSON(std::string inputFileName, std::string outputFileName) {
+	using namespace std::literals::string_literals;
+	std::ifstream ifs;
+	ifs.open(inputFileName);
+	json::Document loadedJSON = json::Load(ifs);
+	ifs.close();
+	for (const auto& request: loadedJSON.GetRoot().AsArray() ) {
+		if (request.AsMap().count("map") == 0) {
+			continue;
+		}
+		std::ofstream outStream;
+		outStream.open(outputFileName);
+		outStream << request.AsMap().at("map").AsString();
+		outStream.close();
+	}
+}
 
 void test_json_reader1() {
 	TestCatalogueWithJsonFiles("input_test1.json", "output_test1.json");
@@ -239,14 +300,17 @@ int main() {
 	setlocale(LC_CTYPE, "Russian");
 	test_json_reader();
 	render_tests();
+	save_SVG_from_JSON("s10_final_opentest_1_answer.json", "out1.svg");
+	save_SVG_from_JSON("s10_final_opentest_2_answer.json", "out2.svg");
+	save_SVG_from_JSON("s10_final_opentest_3_answer.json", "out3.svg");
 
-	/*JsonReader jr{cin};
-	TransportCatalogue tc;
-	jr.add_to_catalogue(tc);
-	renderer::MapRenderer renderer(jr.get_render_options());
-	RequestHandler rh(tc, renderer);
-	json::Document requestJSON = jr.get_responce(rh);
-	json::Print(requestJSON, std::cout);*/
+	//JsonReader jr{cin};
+	//TransportCatalogue tc;
+	//jr.add_to_catalogue(tc);
+	//renderer::MapRenderer renderer(jr.get_render_options());
+	//RequestHandler rh(tc, renderer);
+	//json::Document requestJSON = jr.get_responce(rh);
+	//json::Print(requestJSON, std::cout);
 
 	return 0;
 }
