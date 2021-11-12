@@ -296,21 +296,22 @@ using namespace std;
 
 int main() {
 
-	testTransportCatalogue();
-	setlocale(LC_CTYPE, "Russian");
-	test_json_reader();
-	render_tests();
-	save_SVG_from_JSON("s10_final_opentest_1_answer.json", "out1.svg");
-	save_SVG_from_JSON("s10_final_opentest_2_answer.json", "out2.svg");
-	save_SVG_from_JSON("s10_final_opentest_3_answer.json", "out3.svg");
+	//testTransportCatalogue();
+	//setlocale(LC_CTYPE, "Russian");
+	//test_json_reader();
+	//render_tests();
+	//save_SVG_from_JSON("s10_final_opentest_1_answer.json", "out1.svg");
+	//save_SVG_from_JSON("s10_final_opentest_2_answer.json", "out2.svg");
+	//save_SVG_from_JSON("s10_final_opentest_3_answer.json", "out3.svg");
 
-	//JsonReader jr{cin};
-	//TransportCatalogue tc;
-	//jr.add_to_catalogue(tc);
-	//renderer::MapRenderer renderer(jr.get_render_options());
-	//RequestHandler rh(tc, renderer);
-	//json::Document requestJSON = jr.get_responce(rh);
-	//json::Print(requestJSON, std::cout);
+
+	JsonReader jr{cin};
+	TransportCatalogue tc;
+	jr.add_to_catalogue(tc);
+	renderer::MapRenderer renderer(jr.get_render_options());
+	RequestHandler rh(tc, renderer);
+	json::Document requestJSON = jr.get_responce(rh);
+	json::Print(requestJSON, std::cout);
 
 	return 0;
 }
