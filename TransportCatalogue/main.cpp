@@ -127,7 +127,26 @@ void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
 	json::Document outJSON = json::Load(str1);
 	//json::Print(requestJSON, std::cout);
 	//json::Print(outJSON, std::cout);
-	assert(requestJSON == outJSON);
+	if (requestJSON == outJSON) {
+		return;
+	}
+	const json::Array& requerstArray = requestJSON.GetRoot().AsArray();
+	const json::Array& outArray = outJSON.GetRoot().AsArray();
+	assert(requerstArray.size() == requerstArray.size());
+	for (size_t i = 0; i < requerstArray.size(); i++){
+		if (requerstArray[i] == outArray[i]) {
+			continue;
+		}
+		json::Document currentIn(requerstArray[i]);
+		json::Document currentOut(outArray[i]);
+		json::Print(currentIn, std::cout);
+		json::Print(currentOut, std::cout);
+
+		std::string s;
+		std::cin >> s;
+	}
+	
+
 }
 
 
@@ -206,7 +225,7 @@ void render_tests() {
 	test_render_options();
 	//test_layer_by_layer_render();
 	TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
-	//TestCatalogueWithJsonFiles("s10_final_opentest_2.json", "s10_final_opentest_2_answer.json");
+	TestCatalogueWithJsonFiles("s10_final_opentest_2.json", "s10_final_opentest_2_answer.json");
 
 	//TODO: написать качественный тест для svg
 	TestCatalogueWithJsonFiles("s10_final_opentest_3.json", "s10_final_opentest_3_answer.json");
@@ -216,18 +235,18 @@ using namespace std;
 
 int main() {
 
-	/*testTransportCatalogue();
+	testTransportCatalogue();
 	setlocale(LC_CTYPE, "Russian");
 	test_json_reader();
-	render_tests();*/
+	render_tests();
 
-	JsonReader jr{ cin };
+	/*JsonReader jr{cin};
 	TransportCatalogue tc;
 	jr.add_to_catalogue(tc);
 	renderer::MapRenderer renderer(jr.get_render_options());
 	RequestHandler rh(tc, renderer);
 	json::Document requestJSON = jr.get_responce(rh);
-	json::Print(requestJSON, std::cout);
+	json::Print(requestJSON, std::cout);*/
 
 	return 0;
 }
