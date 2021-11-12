@@ -1,0 +1,16 @@
+[
+  {
+    "curvature": 1.60481,
+    "request_id": 218563507,
+    "route_length": 11230,
+    "stop_count": 8,
+    "unique_stop_count": 7
+  },
+  {
+    "buses": [
+      "14",
+      "24"
+    ],
+    "request_id": 508658276
+  }
+]

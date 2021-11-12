@@ -1,9 +1,17 @@
-#include "transport_catalogue.h"
-#include "input_reader.h"
-#include "stat_reader.h"
 #include <cassert>
 #include <iostream>
 #include <vector>
+#include <fstream>
+#include <locale.h>
+#include <sstream>
+#include "transport_catalogue.h"
+#include "json.h"
+#include "json_reader.h"
+#include "request_handler.h"
+#include "map_renderer.h"
+
+using namespace transport_catalogue;
+using namespace domain;
 
 //tests for TransportCatalogue class
 void TCTest1() {
@@ -11,8 +19,8 @@ void TCTest1() {
 	TransportCatalogue tc;
 	std::vector<std::string_view> stops{ "stop1"sv, "stop2"sv };
 
-	tc.addStop(stops[0], {0.1, 0.2});
-	tc.addStop(stops[1], { 0.2, 0.3});
+	tc.addStop(stops[0], { 0.1, 0.2 });
+	tc.addStop(stops[1], { 0.2, 0.3 });
 	const Stop* stop = tc.findStop("stop1"s);
 	assert(stop->name == "stop1"s);
 	assert(stop->coordinates.lat == 0.1);
@@ -23,21 +31,21 @@ void TCTest1() {
 		assert(false);
 	}
 	catch (invalid_argument&) {
-	
+
 	}
 	catch (exception&) {
 		assert(false);
 	}
 
 	std::string busName = "bus1";
-	tc.addRoute(busName, stops);
+	tc.addRoute(busName, stops, true);
 	const Route* rt = tc.findRoute("bus1");
 	assert(rt->stops[0] == tc.findStop(stops[0]));
 
-	try{
+	try {
 		stops.push_back("stop3"s);
 		std::string busName2 = "bus2"s;
-		tc.addRoute(busName2, stops);
+		tc.addRoute(busName2, stops, true);
 		assert(false);
 	}
 	catch (std::invalid_argument&) {
@@ -51,197 +59,259 @@ void TCTest1() {
 	assert(!rt);
 }
 
-void TCTest2() {
+
+void testDistance() {
 	using namespace std;
 	TransportCatalogue tc;
-	std::vector<std::string_view> stops{ "stop1"sv, "stop2"sv, "stop3"sv, "stop4"sv};
-	std::vector<Coordinates> coord{ {0.0, 0.0}, {0.0, 1.0}, {0.0, 2.0}, {0.0, 3.0} };
-	std::vector<std::string> routeNames{ "route 1"s, "route2"s};
-	for (size_t i = 0; i < stops.size(); i++)
-	{
-		tc.addStop(stops[i], coord[i]);
-	}
-	tc.addRoute(routeNames[0], stops);
-	stops.resize(2);
-	tc.addRoute(routeNames[1], stops);
-	RouteInfo info1 = tc.getRouteInfo(routeNames[0]);
-	assert(info1.stopsNumber == 4);
-	assert(info1.uniqueStops == 4);
-	double len = ComputeDistance(coord[0], coord[1]) + ComputeDistance(coord[2], coord[1]) + ComputeDistance(coord[2], coord[3]);
-	assert(info1.length == len);
-	RouteInfo info2 = tc.getRouteInfo("route2"s);
-	assert(info2.stopsNumber == 2);
-	assert(info2.uniqueStops == 2);
-	len = ComputeDistance(coord[0], coord[1]);
-	assert(info2.length == len);
+
+	string s1 = "stop1";
+	string s2 = "stop2";
+	string s3 = "stop3";
+	string s4 = "stop4";
+	tc.addStop(s1, { 43.587795, 39.716901 });
+	tc.addStop(s2, { 43.58770, 39.71690 });
+	tc.addStop(s3, { 43.58775, 39.71695 });
+	tc.addStop(s4, { 43.58785, 39.71685 });
+	const Stop* s1p = tc.findStop(s1);
+	const Stop* s2p = tc.findStop(s2);
+	const Stop* s3p = tc.findStop(s3);
+	tc.addStopsDistance(s1p, s2p, 100);
+	tc.addStopsDistance(s2p, s1p, 400);
+	tc.addStopsDistance(s2p, s2p, 500);
+	tc.addStopsDistance(s1p, s1p, 600);
+	tc.addStopsDistance(s1p, s3p, 700);
+	assert(tc.getRealStopsDistance(s1p, s2p) == 100);
+	assert(tc.getRealStopsDistance(s2p, s1p) == 400);
+	assert(tc.getRealStopsDistance(s2p, s2p) == 500);
+	assert(tc.getRealStopsDistance(s1p, s1p) == 600);
+	assert(tc.getRealStopsDistance(s1p, s3p) == 700);
+	assert(tc.getRealStopsDistance(s3p, s1p) == 700);
+	assert(tc.getRealStopsDistance(s3p, s3p) == 0);
+	assert(tc.getRealStopsDistance(s3p, s2p) == -1);
+	assert(tc.getRealStopsDistance(s2p, s3p) == -1);
+
 }
 
 void testTransportCatalogue() {
 	TCTest1();
-	TCTest2();
-
+	testDistance();
 }
 
-//tests for input_reader functions
-
-TransportCatalogue makeSimpleCatalogue() {
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << 10 << "\n";
-	ss << "Stop Tolstopaltsevo: 55.611087, 37.208290"s << "\n";
-	ss << "Stop Marushkino: 55.595884, 37.209755"s << "\n";
-	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
-	ss << "Bus 750: Tolstopaltsevo - Marushkino - Rasskazovka"s << "\n";
-	ss << "Stop Rasskazovka: 55.632761, 37.333324"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.651700"s << "\n";
-	ss << "Stop Biryusinka: 55.581065, 37.648390"s << "\n";
-	ss << "Stop Universam: 55.587655, 37.645687"s << "\n";
-	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656"s << "\n";
-	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164"s << "\n";
-	TransportCatalogue tc;
-	addToCatalogue(ss, tc);
-	return tc;
-}
-
-void IRTest1() {
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << "NotANumber"s << "\n";
-	TransportCatalogue tc;
-	try {
-		addToCatalogue(ss, tc);
-		assert(false);
+std::string loadFile(std::string filename) {
+	std::ifstream is(filename, std::ios::binary | std::ios::ate);
+	if (!is.is_open()) {
+		return "";
 	}
-	catch (std::invalid_argument&) {
+	auto size = is.tellg();
+	std::string str(size, '\0'); // construct string to stream size
+	is.seekg(0);
+	if (!is.read(&str[0], size)) {
+		str = "";
+	}
+	is.close();
+	return str;
+}
+
+void TestCatalogueWithJsonFiles(std::string inputFile, std::string answerFile) {
+	using namespace std::literals::string_literals;
+	std::string simpleTest = loadFile(inputFile);
+	std::stringstream strm{ simpleTest };
+	JsonReader jr{ strm };
+	TransportCatalogue tc;
+	jr.add_to_catalogue(tc);
+	renderer::MapRenderer renderer(jr.get_render_options());
+	RequestHandler rh(tc, renderer);
+	json::Document requestJSON = jr.get_responce(rh);
+	std::string simpleResponse = loadFile(answerFile);
+	std::stringstream str1{ simpleResponse };
+	json::Document outJSON = json::Load(str1);
+	//json::Print(requestJSON, std::cout);
+	//json::Print(outJSON, std::cout);
+	//assert(requestJSON == outJSON);
+	if (requestJSON == outJSON) {
+		return;
+	}
+	const json::Array& requerstArray = requestJSON.GetRoot().AsArray();
+	const json::Array& outArray = outJSON.GetRoot().AsArray();
+	assert(requerstArray.size() == requerstArray.size());
+	for (size_t i = 0; i < requerstArray.size(); i++){
+		if (requerstArray[i] == outArray[i]) {
+			continue;
+		}
+		{
+			json::Document currentIn(requerstArray[i]);
+			json::Document currentOut(outArray[i]);
+			std::stringstream ssin;
+			std::stringstream ssout;
+			json::Print(currentIn, ssin);
+			json::Print(currentOut, ssout);
+			if (ssin.str() == ssout.str()) {
+				continue;
+			}
+
+			if (requerstArray[i].AsMap().count("map") == 0) {
+				json::Print(currentIn, std::cout);
+				json::Print(currentOut, std::cout);
+				std::string s;
+				std::cin >> s;
+				continue; // пропустим все несовпадения карт
+			}
+		}
+		//svg checking
+		std::stringstream ssin { requerstArray[i].AsMap().at("map").AsString() };
+		std::stringstream ssout{ outArray[i].AsMap().at("map").AsString() };
+		//сравним построчно
+		std::string strin;
+		std::string strout;
+		//
+		std::ofstream infile;
+		std::ofstream outfile;
+		infile.open("in.svg"s);
+		outfile.open("out.svg"s);
+
+		while (std::getline(ssin, strin) && std::getline(ssout, strout)) {
+			infile << strin << "\n";
+			outfile << strout << "\n";
+			if (strin == strout) {
+				//std::cout << strout << "\n";
+				continue;
+			}
+			std::cout << strout << "\n";
+			std::cout << strin << "\n";
+
+			//std::string s;
+			//std::cin >> s;
+		}
+
+		infile.close();
+		outfile.close();
 		
-	}
-	catch (std::exception&) {
-		assert(false);
-	}
-}
 
-void IRTest2() {
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << 10 << "\n";
-	ss << "Stop Tolstopaltsevo: 55.611087, 37.208290"s << "\n";
-	ss << "Stop Marushkino: 55.595884, 37.209755"s << "\n";
-	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
-	ss << "Bus 750: Tolstopaltsevo - Marushkino - Rasskazovka"s << "\n";
-	ss << "Stop Rasskazovka: 55.632761, 37.333324"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.651700"s << "\n";
-	ss << "Stop Biryusinka: 55.581065, 37.648390"s << "\n";
-	ss << "Stop Universam: 55.587655, 37.645687"s << "\n";
-	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656"s << "\n";
-	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164"s << "\n";
-	TransportCatalogue tc;
-	addToCatalogue(ss, tc);
-	auto routeInfo = tc.getRouteInfo("256"s);
-	assert(routeInfo.stopsNumber == 6);
-	assert(routeInfo.uniqueStops == 5);
-	assert(floor(routeInfo.length) == 4371.);
-	routeInfo = tc.getRouteInfo("750"s);
-	assert(routeInfo.stopsNumber == 5);
-	assert(routeInfo.uniqueStops == 3);
-	assert(floor(routeInfo.length) == 20939.);
-	try {
-		routeInfo = tc.getRouteInfo("noSuchRoute"s);
-		assert(false);
+
 	}
-	catch (std::invalid_argument&) {
 	
-	}
-	catch (std::exception&) {
-		assert(false);
-	}
-}
 
-void IRTest3() {
-	TransportCatalogue tc = makeSimpleCatalogue();
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << 3 << "\n";
-	ss << "Bus 256"s << "\n";
-	ss << "Bus 750"s << "\n";
-	ss << "Bus 751"s << "\n";
-	std::stringstream so;
-	printQueries(ss, so, tc);
-	const std::vector<std::string> answers = { "Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length"s,
-		"Bus 750: 5 stops on route, 3 unique stops, 20939.5 route length"s,
-		"Bus 751: not found"s
-	};
-	for (const std::string& ans : answers) {
-		std::string line;
-		std::getline(so, line);
-		assert(line == ans);
-	}
 }
 
 
-
-void IRTest4() {
-	TransportCatalogue tc = makeSimpleCatalogue();
-	using namespace std::string_literals;
-	std::stringstream ss;
-	ss << 13 << "\n";
-	ss << "Stop Tolstopaltsevo: 55.611087, 37.20829"s << "\n";
-	ss << "Stop Marushkino: 55.595884, 37.209755"s << "\n";
-	ss << "Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye"s << "\n";
-	ss << "Bus 750: Tolstopaltsevo - Marushkino - Rasskazovka"s << "\n";
-	ss << "Stop Rasskazovka: 55.632761, 37.333324"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye: 55.574371, 37.6517"s << "\n";
-	ss << "Stop Biryusinka: 55.581065, 37.64839"s << "\n";
-	ss << "Stop Universam: 55.587655, 37.645687"s << "\n";
-	ss << "Stop Biryulyovo Tovarnaya: 55.592028, 37.653656"s << "\n";
-	ss << "Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164"s << "\n";
-	ss << "Bus 828: Biryulyovo Zapadnoye > Universam > Rossoshanskaya ulitsa > Biryulyovo Zapadnoye"s << "\n";
-	ss << "Stop Rossoshanskaya ulitsa: 55.595579, 37.605757"s << "\n";
-	ss << "Stop Prazhskaya: 55.611678, 37.603831"s << "\n";
-	ss << 6 << "\n";
-	ss << "Bus 256"s << "\n";
-	ss << "Bus 750"s << "\n";
-	ss << "Bus 751"s << "\n";
-	ss << "Stop Samara"s << "\n";
-	ss << "Stop Prazhskaya"s << "\n";
-	ss << "Stop Biryulyovo Zapadnoye"s << "\n";
-
-	addToCatalogue(ss, tc);
-	std::stringstream so;
-	printQueries(ss, so, tc);
-	const std::vector<std::string> answers = { "Bus 256: 6 stops on route, 5 unique stops, 4371.02 route length"s,
-		"Bus 750: 5 stops on route, 3 unique stops, 20939.5 route length"s,
-		"Bus 751: not found"s,
-		"Stop Samara: not found"s,
-		"Stop Prazhskaya: no buses"s,
-		"Stop Biryulyovo Zapadnoye: buses 256 828"s
-	};
-	for (const std::string& ans : answers) {
-		std::string line;
-		std::getline(so, line);
-		assert(line == ans);
+void save_SVG_from_JSON(std::string inputFileName, std::string outputFileName) {
+	using namespace std::literals::string_literals;
+	std::ifstream ifs;
+	ifs.open(inputFileName);
+	json::Document loadedJSON = json::Load(ifs);
+	ifs.close();
+	for (const auto& request: loadedJSON.GetRoot().AsArray() ) {
+		if (request.AsMap().count("map") == 0) {
+			continue;
+		}
+		std::ofstream outStream;
+		outStream.open(outputFileName);
+		outStream << request.AsMap().at("map").AsString();
+		outStream.close();
 	}
 }
 
-
-
-void testInputReader() {
-	IRTest1();
-	IRTest2();
-	IRTest3();
-	IRTest4();
+void test_json_reader1() {
+	TestCatalogueWithJsonFiles("input_test1.json", "output_test1.json");
+	TestCatalogueWithJsonFiles("input_test2.json", "output_test2.json");
+	TestCatalogueWithJsonFiles("input_test3.json", "output_test3.json");
 }
 
+void test_json_reader() {
+	test_json_reader1();
+}
+
+bool operator==(const svg::Rgb& lhs, const svg::Rgb& rhs){
+	return lhs.red == rhs.red && lhs.green == rhs.green && lhs.blue == rhs.blue;
+}
+
+bool operator==(const svg::Rgba& lhs, const svg::Rgba& rhs) {
+	return lhs.red == rhs.red && lhs.green == rhs.green 
+		&& lhs.blue == rhs.blue && IsZero(lhs.opacity - rhs.opacity);
+}
+
+void test_render_options() {
+	using namespace std::literals::string_literals;
+	std::string simpleTest = loadFile("s10_final_opentest_1.json"s);
+	std::stringstream strm{ simpleTest };
+	JsonReader jr{ strm };
+	renderer::RenderOptions ops{ jr.get_render_options() };
+	assert(IsZero( ops.width - 89298.28369209476));
+	assert(IsZero(ops.height - 58011.29248202205));
+	assert(IsZero(ops.padding - 22325.567226490493));
+	assert(IsZero(ops.stop_radius - 21462.68635533567));
+	assert(IsZero(ops.line_width - 38727.57356370373));
+	assert(ops.stop_label_font_size == 86988);
+	assert(IsZero(ops.stop_label_offset.x  + 23192.03299796056));
+	assert(IsZero(ops.stop_label_offset.y - 92100.21839665441));
+	assert(std::get<std::string>(ops.underlayer_color) == "coral"s);
+	assert(IsZero(ops.underlayer_width - 34006.680510317055));
+	assert(ops.bus_label_font_size == 78497);
+	assert(IsZero(ops.bus_label_offset.x - 59718.916265509615));
+	assert(IsZero(ops.bus_label_offset.y - 15913.541281271406));
+	using namespace svg;
+
+	assert(std::get<Rgba>(ops.color_palette[0]) == Rgba( 195, 60, 81, 0.6244132141059138 ));
+	assert(std::get<Rgb>(ops.color_palette[1]) == Rgb ( 2, 81, 213 ));
+	assert(std::get<Rgba>(ops.color_palette[2]) == Rgba( 81, 152, 19, 0.6834377639654173 ));
+	assert(std::get<Rgba>(ops.color_palette[3]) == Rgba( 94, 70, 16, 0.7604371566734329 ));
+	assert(std::get<Rgb>(ops.color_palette[4]) == Rgb( 191, 220, 104 ));
+	assert(std::get<std::string>(ops.color_palette[5]) == "brown"s);
+}
+
+void test_layer_by_layer_render() {
+	using namespace std::literals::string_literals;
+	std::string simpleTest = loadFile("input_render_test1.json"s);
+	std::stringstream strm{ simpleTest };
+	JsonReader jr{ strm };
+	TransportCatalogue tc;
+	jr.add_to_catalogue(tc);
+	renderer::MapRenderer renderer{ jr.get_render_options() };
+	RequestHandler rh(tc, renderer);
+	json::Document requestJSON = jr.get_responce(rh);
+	auto answers = requestJSON.GetRoot().AsArray();
+	for (auto answer : answers) {
+		const auto& dict = answer.AsMap();
+		if (dict.count("map"s) == 0) {
+			continue;
+		}
+		std::string svgStr = dict.at("map"s).AsString();
+		std::cout << svgStr << std::endl;
+
+	}
+
+}
+
+void render_tests() {
+	test_render_options();
+	//test_layer_by_layer_render();
+	TestCatalogueWithJsonFiles("s10_final_opentest_1.json", "s10_final_opentest_1_answer.json");
+	TestCatalogueWithJsonFiles("s10_final_opentest_2.json", "s10_final_opentest_2_answer.json");
+
+	//TODO: написать качественный тест для svg
+	TestCatalogueWithJsonFiles("s10_final_opentest_3.json", "s10_final_opentest_3_answer.json");
+}
 
 using namespace std;
 
 int main() {
-	testTransportCatalogue();
-	testInputReader();
 
-	cout << "all tests passed successfully"s;
-	/*TransportCatalogue tc;
-	addToCatalogue(cin, tc);
-	printQueries(cin, cout, tc);*/
+	//testTransportCatalogue();
+	//setlocale(LC_CTYPE, "Russian");
+	//test_json_reader();
+	//render_tests();
+	//save_SVG_from_JSON("s10_final_opentest_1_answer.json", "out1.svg");
+	//save_SVG_from_JSON("s10_final_opentest_2_answer.json", "out2.svg");
+	//save_SVG_from_JSON("s10_final_opentest_3_answer.json", "out3.svg");
+
+
+	JsonReader jr{cin};
+	TransportCatalogue tc;
+	jr.add_to_catalogue(tc);
+	renderer::MapRenderer renderer(jr.get_render_options());
+	RequestHandler rh(tc, renderer);
+	json::Document requestJSON = jr.get_responce(rh);
+	json::Print(requestJSON, std::cout);
 
 	return 0;
 }

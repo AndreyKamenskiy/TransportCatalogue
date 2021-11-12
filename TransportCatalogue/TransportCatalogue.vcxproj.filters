@@ -21,10 +21,22 @@
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="input_reader.cpp">
+    <ClCompile Include="domain.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="stat_reader.cpp">
+    <ClCompile Include="json.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="json_reader.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="map_renderer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="request_handler.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="svg.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,14 +44,72 @@
     <ClInclude Include="geo.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="input_reader.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="stat_reader.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="transport_catalogue.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="domain.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="json.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="json_reader.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="map_renderer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="request_handler.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="svg.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="input_test1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="output_test1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="input_test2.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="output_test2.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="input_test3.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="output_test3.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_1_answer.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_2.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_2_answer.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_3.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="s10_final_opentest_3_answer.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="input_render_test1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="output_render_test1.json">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
 </Project>

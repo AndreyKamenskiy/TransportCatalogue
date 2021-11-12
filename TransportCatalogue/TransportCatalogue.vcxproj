@@ -142,18 +142,49 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="domain.cpp" />
+    <ClCompile Include="json.cpp" />
+    <ClCompile Include="json_reader.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="input_reader.cpp" />
-    <ClCompile Include="stat_reader.cpp" />
+    <ClCompile Include="map_renderer.cpp" />
+    <ClCompile Include="request_handler.cpp" />
+    <ClCompile Include="svg.cpp" />
     <ClCompile Include="transport_catalogue.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="domain.h" />
     <ClInclude Include="geo.h" />
+    <ClInclude Include="json.h" />
+    <ClInclude Include="json_reader.h" />
+    <ClInclude Include="map_renderer.h" />
+    <ClInclude Include="request_handler.h" />
+    <ClInclude Include="svg.h" />
     <ClInclude Include="transport_catalogue.h" />
-    <ClInclude Include="stat_reader.h" />
-    <ClInclude Include="input_reader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="input_test1.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="input_render_test1.json" />
+    <None Include="input_test2.json" />
+    <None Include="input_test3.json" />
+    <None Include="output_render_test1.json" />
+    <None Include="output_test1.json" />
+    <None Include="output_test2.json" />
+    <None Include="output_test3.json" />
+    <None Include="s10_final_opentest_1.json" />
+    <None Include="s10_final_opentest_1_answer.json" />
+    <None Include="s10_final_opentest_2.json" />
+    <None Include="s10_final_opentest_2_answer.json" />
+    <None Include="s10_final_opentest_3.json" />
+    <None Include="s10_final_opentest_3_answer.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties input_3test1_1json__JsonSchema="https://json.schemastore.org/aiproj.json" input_3test2_1json__JsonSchema="https://jenkins-x.io/schemas/jx-schema.json" s10_3final_3opentest_33_1json__JsonSchema="https://appsemble.app/api.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
